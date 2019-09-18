@@ -63,10 +63,9 @@ if __name__ == '__main__':
     print('a =', a, ', b =', b)
     print('-' * 70)
     print('Через арифметические действия')
-    if a != b:
-        a = a ^ b
-        b = b ^ a
-        a = a ^ b
+    a = a + b
+    b = a - b
+    a = a - b
     print('a =', a, ', b =', b)
     print('*' * 70)
 
