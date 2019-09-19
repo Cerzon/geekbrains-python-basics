@@ -1,3 +1,5 @@
+__author__ = 'Ткаченко Кирилл Павлович'
+
 # Задача-1:
 # Дан список фруктов.
 # Напишите программу, выводящую фрукты в виде нумерованного списка,
@@ -12,6 +14,26 @@
 # 4.  арбуз
 
 # Подсказка: воспользоваться методом .format()
+
+
+def aligned_print(value_list):
+    """
+    Вывод выровненного по правой стороне
+    нумерованного списка
+    """
+    num_wdth = len(str(len(value_list) + 1))
+    val_wdth = max([len(x) for x in value_list])
+    for i in range(len(value_list)):
+        print('{0:>{nw}}. {1:>{vw}}'.format(i + 1, value_list[i], nw=num_wdth, vw=val_wdth))
+
+
+if __name__ == '__main__':
+    print('*' * 70)
+    print('Вывод выровненного списка')
+    print('-' * 70)
+    input_list = [x.strip() for x in input('Введите список через запятую: ').split(',')]
+    aligned_print(input_list)
+    print('*' * 70)
 
 
 # Задача-2:
