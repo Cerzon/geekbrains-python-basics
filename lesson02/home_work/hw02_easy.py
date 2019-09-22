@@ -23,8 +23,8 @@ def aligned_print(value_list):
     """
     num_wdth = len(str(len(value_list) + 1))
     val_wdth = max([len(x) for x in value_list])
-    for i in range(len(value_list)):
-        print('{0:>{nw}}. {1:>{vw}}'.format(i + 1, value_list[i], nw=num_wdth, vw=val_wdth))
+    for i, item_value in enumerate(value_list, 1):
+        print('{0:>{nw}}. {1:>{vw}}'.format(i, item_value, nw=num_wdth, vw=val_wdth))
 
 
 if __name__ == '__main__':
@@ -65,6 +65,8 @@ if __name__ == '__main__':
     print('*' * 70)
     print('Составляем список из исходного списка целых чисел')
     print('-' * 70)
-    input_list = [int(x.strip()) for x in input('Введите список целых чисел через запятую: ').split(',')]
+    input_list = [int(x.strip()) if x.strip().isnumeric() or x.strip()[1:].isnumeric() else None for x in input('Введите список целых чисел через запятую: ').split(',')]
+    while None in input_list:
+        input_list.remove(None)
     print([x * 2 if x % 2 else x / 4 for x in input_list])
     print('*' * 70)
