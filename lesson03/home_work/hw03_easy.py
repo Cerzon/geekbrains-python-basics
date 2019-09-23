@@ -5,7 +5,15 @@
 # Для решения задачи не используйте встроенные функции и функции из модуля math.
 
 def my_round(number, ndigits):
-    pass
+    """
+    Округляем дробную часть до указанного знака после запятой
+    """
+    fractional = (number % 1) * (10**ndigits)
+    if fractional % 1 >= 0.5:
+        fractional = int(fractional) + 1
+    else:
+        fractional = int(fractional)
+    return int(number) + fractional / 10**ndigits
 
 
 print(my_round(2.1234567, 5))
