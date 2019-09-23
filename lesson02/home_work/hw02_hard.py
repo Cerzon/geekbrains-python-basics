@@ -82,3 +82,18 @@ if __name__ == '__main__':
 #
 # Вход: 11
 # Выход: 5 3
+
+if __name__ == '__main__':
+    print('*' * 70)
+    print('Катаемся на лифте по Вавилонской башне')
+    print('-' * 70)
+    destination = int(input('Введите номер комнаты прибытия: '))
+    block = 1
+    while destination > sum([x**2 for x in range(block + 1)]):
+        block += 1
+    block_last_stage = sum(range(block + 1))
+    to_last_room = sum([x**2 for x in range(1, block + 1)]) - destination
+    stage = block_last_stage - to_last_room // block
+    from_left = block - to_last_room % block
+    print('Комната {0} находится на {1} этаже, {2}-ая слева'.format(destination, stage, from_left))
+    print('*' * 70)
