@@ -31,12 +31,26 @@ date = '1.12.1001'
 date = '-2.10.3001'
 
 
+def check_date(date_to_check):
+    if not re.match(r'^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0-2])\.\d{4}$', date_to_check):
+        return 'Некорректный формат даты.'
+    iday, imonth, iyear = [int(x) for x in date_to_check.split('.')]
+    MONTHS = dict([(x, 31) if (x % 2 and x < 8) or (not x % 2 and x > 7) else (x, 30) for x in range(1, 13)])
+    if iyear % 4:
+        MONTHS[2] = 28
+    else:
+        MONTHS[2] = 29
+    if iday > MONTHS[imonth] or iyear == 0:
+        return 'Введена некорректная дата.'
+    return iday, imonth, iyear
+
+
 if __name__ == '__main__':
     print('*' * 70)
     print('Работаем с датами')
     input_date = input('Введите дату в формате dd.mm.yyyy: ')
-    if not re.match(r'^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0-2])\.\d{3}[1-9]$', input_date):
-        print('Некорректный формат даты.')
+    print(check_date(input_date))
+    print('*' * 70)
 
 
 # Задание-3: "Перевёрнутая башня" (Задача олимпиадного уровня)
