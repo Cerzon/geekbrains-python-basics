@@ -92,7 +92,7 @@ if __name__ == '__main__':
     while destination > sum([x**2 for x in range(block + 1)]):
         block += 1
     block_last_stage = sum(range(block + 1))
-    to_last_room = sum([x**2 for x in range(1, block + 1)]) - destination
+    to_last_room = sum([x**2 for x in range(block + 1)]) - destination
     stage = block_last_stage - to_last_room // block
     from_left = block - to_last_room % block
     print('Комната {0} находится на {1} этаже, {2}-ая слева'.format(destination, stage, from_left))
