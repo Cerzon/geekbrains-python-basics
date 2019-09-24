@@ -22,7 +22,7 @@ def aligned_print(value_list):
     нумерованного списка
     """
     num_wdth = len(str(len(value_list) + 1))
-    val_wdth = max([len(x) for x in value_list])
+    val_wdth = max(len(x) for x in value_list)
     for i, item_value in enumerate(value_list, 1):
         print('{0:>{nw}}. {1:>{vw}}'.format(i, item_value, nw=num_wdth, vw=val_wdth))
 

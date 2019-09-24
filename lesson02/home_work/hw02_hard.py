@@ -34,8 +34,8 @@ date = '-2.10.3001'
 def check_date(date_to_check):
     if not re.match(r'^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0-2])\.\d{4}$', date_to_check):
         return 'Некорректный формат даты.'
-    iday, imonth, iyear = [int(x) for x in date_to_check.split('.')]
-    MONTHS = dict([(x, 31) if (x % 2 and x < 8) or (not x % 2 and x > 7) else (x, 30) for x in range(1, 13)])
+    iday, imonth, iyear = (int(x) for x in date_to_check.split('.'))
+    MONTHS = dict((x, 31) if (x % 2 and x < 8) or (not x % 2 and x > 7) else (x, 30) for x in range(1, 13))
     if iyear % 4:
         MONTHS[2] = 28
     else:
@@ -89,10 +89,10 @@ if __name__ == '__main__':
     print('-' * 70)
     destination = int(input('Введите номер комнаты прибытия: '))
     block = 1
-    while destination > sum([x**2 for x in range(block + 1)]):
+    while destination > sum(x**2 for x in range(block + 1)):
         block += 1
     block_last_stage = sum(range(block + 1))
-    to_last_room = sum([x**2 for x in range(block + 1)]) - destination
+    to_last_room = sum(x**2 for x in range(block + 1)) - destination
     stage = block_last_stage - to_last_room // block
     from_left = block - to_last_room % block
     print('Комната {0} находится на {1} этаже, {2}-ая слева'.format(destination, stage, from_left))

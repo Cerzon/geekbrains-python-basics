@@ -75,7 +75,7 @@ def date_humanized(str_date):
         {'name': 'ноября', 'limit': 30,},
         {'name': 'декабря', 'limit': 31,},
     )
-    iday, imonth, iyear = [int(x) if x.isnumeric() else -1 for x in str_date.split('.')]
+    iday, imonth, iyear = (int(x) if x.isnumeric() else -1 for x in str_date.split('.'))
     if iday < 1 or imonth < 1 or imonth > 12 or iyear < 1:
         return 'Дата введена неправильно'
     if iday > MONTH_INFO[imonth - 1]['limit']:
