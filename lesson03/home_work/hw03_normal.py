@@ -56,19 +56,42 @@ sort_to_max([2, 10, -12, 2.5, 20, -11, 4, 4, 0])
 
 def my_filter(*args):
     """
-    Возвращаем список (можно бы и просто генератор) с ненулевыми
-    и непустыми элементами изначального, либо, при передачи имени
-    функции в первом аргументе, если результат выполнения фунцкии
-    для элемента ненулевой
+    my_filter(function, iterable)
+    or
+    my_filter(iterable)
+    -------------------------------------------------
+    Возвращаем список (можно бы и просто генератор) с
+    ненулевыми и непустыми элементами изначального,
+    либо, при передачи имени функции в первом аргументе,
+    если результат выполнения фунцкии для элемента
+    не нулевой/ложный/None
     """
     if len(args) == 2:
-        func, iter_to_test = args
-        return [x for x in iter_to_test if func(x)]
-    (iter_to_test,) = args
-    return [x for x in iter_to_test if x]
+        return [x for x in args[1] if args[0](x)]
+    return [x for x in args[0] if x]
 
 
 # Задача-4:
 # Даны четыре точки А1(х1, у1), А2(x2 ,у2), А3(x3 , у3), А4(х4, у4).
 # Определить, будут ли они вершинами параллелограмма.
 
+
+def check_points(point1, point2, point3, point4):
+    """
+    point = tuple(x, y)
+    Проверка, являются ли переданные функции точки
+    вершинами параллелограмма
+    """
+    if (point1 == point2 or point1 == point3 or
+            point1 == point4 or point2 == point3 or
+            point2 == point4 or point3 == point4):
+        return False
+    if ((point1[0] + point2[0] == point3[0] + point4[0] and
+            point1[1] + point2[1] == point3[1] + point4[1]) or
+            (point1[0] + point3[0] == point2[0] + point4[0] and
+            point1[1] + point3[1] == point2[1] + point4[1]) or
+            (point1[0] + point4[0] == point2[0] + point3[0] and
+            point1[1] + point4[1] == point2[1] + point3[1])):
+        return True
+    else:
+        return False
