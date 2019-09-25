@@ -15,41 +15,59 @@ __author__ = 'Ткаченко Кирилл Павлович'
 import re
 
 class MyFraction:
-    def __init__(self, str_fraction):
-        match = re.match(
-            r'^(?P<entier>-?\d+\b)? ?((?P<dividend>(?(entier)|-?)\d+)/(?P<divider>\d+))?$',
-            str_fraction)
-        if match is None:
-            return None
+    """
+    constructor: MyFraction(string) or MyFraction(int, int, int)
+    | string - literal representation of the fraction, i.e. '1 1/2', '-3 5/6'
+    | int, int, int - integer part (0 if absent), dividend (0 if the fraction
+    + --------------- part is absent), divider ( > 0! use 1 for default)
+    supports add, sub, mul, truediv, comparison
+    """
+    def __init__(self, *args):
         self.negative = False
         self.entier = 0
         self.dividend = 0
         self.divider = 1
-        if match.group('entier'):
-            self.entier = int(match.group('entier'))
-            if self.entier < 0:
-                self.negative = True
-                self.entier *= -1
-        if match.group('dividend'):
-            self.dividend = int(match.group('dividend'))
-            if self.dividend < 0:
-                self.negative = True
-                self.dividend *= -1
-            self.divider = int(match.group('divider'))
-            if self.divider == 0:
-                raise ZeroDivisionError
+        if isinstance(args[0], str):
+            match = re.match(
+                r'^(?P<entier>-?\d+\b)? ?((?P<dividend>(?(entier)|-?)\d+)/(?P<divider>\d+))?$',
+                args[0])
+            if match is None:
+                raise ValueError('Wrong fraction format. "{}" does not match to "[-][<int:entier>] [<int:dividend>/<int:divider>]"'.format(args[0]))
+            if match.group('entier'):
+                self.entier = int(match.group('entier'))
+            if match.group('dividend'):
+                self.dividend = int(match.group('dividend'))
+                self.divider = int(match.group('divider'))
+        elif len(args) == 3 and not False in (isinstance(x, int) for x in args):
+            self.entier, self.dividend, self.divider = args
+            if self.divider < 0:
+                raise ValueError('Wrong fraction format. Divider must be positive')
+        else:
+            return None
+        if self.divider == 0:
+            raise ValueError('Divider can not be zero')
+        if self.entier < 0:
+            self.negative = True
+            self.entier *= -1
+        if self.dividend < 0:
+            self.negative = True
+            self.dividend *= -1
         self.simplify()
 
     def simplify(self):
         self.entier += self.dividend // self.divider
         self.dividend = self.dividend % self.divider
-        for i in range(1, self.dividend // 2):
+        for i in range(1, self.dividend // 2 + 1):
             if not self.dividend % i and not self.divider % (self.dividend // i):
                 self.divider //= self.dividend // i
                 self.dividend = i
                 break
         if self.dividend == 0:
             self.divider = 1
+
+    def complicate(self):
+        self.dividend += self.entier * self.divider
+        self.entier = 0
 
     def __str__(self):
         str_output = ''
@@ -64,26 +82,175 @@ class MyFraction:
         return str_output
 
     def __add__(self, other):
-        pass
+        if not isinstance(other, MyFraction):
+            if isinstance(other, int):
+                return MyFraction(self.entier * (-1 if self.negative else 1) + other,
+                    self.dividend, self.divider)
+            else:
+                return NotImplemented
+        self.complicate()
+        other.complicate()
+        res_dividend = self.dividend * (-1 if self.negative else 1) * other.divider + other.dividend * (-1 if other.negative else 1) * self.divider
+        self.simplify()
+        other.simplify()
+        return MyFraction(0, res_dividend, self.divider * other.divider)
 
     def __sub__(self, other):
-        pass
+        if not isinstance(other, MyFraction):
+            if isinstance(other, int):
+                return MyFraction(self.entier * (-1 if self.negative else 1) - other,
+                    self.dividend, self.divider)
+            else:
+                return NotImplemented
+        self.complicate()
+        other.complicate()
+        res_dividend = self.dividend * (-1 if self.negative else 1) * other.divider - other.dividend * (-1 if other.negative else 1) * self.divider
+        self.simplify()
+        other.simplify()
+        return MyFraction(0, res_dividend, self.divider * other.divider)
 
     def __mul__(self, other):
-        pass
+        if not isinstance(other, MyFraction):
+            if isinstance(other, int):
+                other = MyFraction(other, 0, 1)
+            else:
+                return NotImplemented
+        self.complicate()
+        other.complicate()
+        res_dividend = self.dividend * (-1 if self.negative else 1) * other.dividend * (-1 if other.negative else 1)
+        self.simplify()
+        other.simplify()
+        return MyFraction(0, res_dividend, self.divider * other.divider)
 
     def __truediv__(self, other):
-        pass
+        if not isinstance(other, MyFraction):
+            if isinstance(other, int):
+                other = MyFraction(other, 0, 1)
+            else:
+                return NotImplemented
+        self.complicate()
+        other.complicate()
+        res_dividend = self.dividend * (-1 if self.negative else 1) * other.divider * (-1 if other.negative else 1)
+        res_divider = self.divider * other.dividend
+        self.simplify()
+        other.simplify()
+        return MyFraction(0, res_dividend, res_divider)
+
+    def __lt__(self, other):
+        if not isinstance(other, MyFraction):
+            if isinstance(other, int):
+                other = MyFraction(other, 0, 1)
+            else:
+                return NotImplemented
+        self.complicate()
+        other.complicate()
+        result = self.dividend * (-1 if self.negative else 1) * other.divider < other.dividend * (-1 if other.negative else 1) * self.divider
+        self.simplify()
+        other.simplify()
+        return result
+
+    def __le__(self, other):
+        if not isinstance(other, MyFraction):
+            if isinstance(other, int):
+                other = MyFraction(other, 0, 1)
+            else:
+                return NotImplemented
+        self.complicate()
+        other.complicate()
+        result = self.dividend * (-1 if self.negative else 1) * other.divider <= other.dividend * (-1 if other.negative else 1) * self.divider
+        self.simplify()
+        other.simplify()
+        return result
+
+    def __gt__(self, other):
+        if not isinstance(other, MyFraction):
+            if isinstance(other, int):
+                other = MyFraction(other, 0, 1)
+            else:
+                return NotImplemented
+        self.complicate()
+        other.complicate()
+        result = self.dividend * (-1 if self.negative else 1) * other.divider > other.dividend * (-1 if other.negative else 1) * self.divider
+        self.simplify()
+        other.simplify()
+        return result
+
+    def __ge__(self, other):
+        if not isinstance(other, MyFraction):
+            if isinstance(other, int):
+                other = MyFraction(other, 0, 1)
+            else:
+                return NotImplemented
+        self.complicate()
+        other.complicate()
+        result = self.dividend * (-1 if self.negative else 1) * other.divider >= other.dividend * (-1 if other.negative else 1) * self.divider
+        self.simplify()
+        other.simplify()
+        return result
+
+    def __eq__(self, other):
+        if not isinstance(other, MyFraction):
+            if isinstance(other, int):
+                other = MyFraction(other, 0, 1)
+            else:
+                return NotImplemented
+        self.complicate()
+        other.complicate()
+        result = self.dividend * (-1 if self.negative else 1) * other.divider == other.dividend * (-1 if other.negative else 1) * self.divider
+        self.simplify()
+        other.simplify()
+        return result
+
+    def __ne__(self, other):
+        if not isinstance(other, MyFraction):
+            if isinstance(other, int):
+                other = MyFraction(other, 0, 1)
+            else:
+                return NotImplemented
+        self.complicate()
+        other.complicate()
+        result = self.dividend * (-1 if self.negative else 1) * other.divider != other.dividend * (-1 if other.negative else 1) * self.divider
+        self.simplify()
+        other.simplify()
+        return result
 
 
-var1 = MyFraction('-54 125/36')
-print(var1)
-print('-' * 70)
-var1 = MyFraction('3 5/55')
-print(var1)
-print('-' * 70)
-var1 = MyFraction('-144/24')
-print(var1, var1.dividend, var1.divider)
+if __name__ == '__main__':
+    print('*' * 70)
+    print('Работаем с простыми дробями')
+    str_input = input('Введите операцию с двумя дробными числами: ').strip()
+    if str_input.find(' + ') > 0:
+        first, second = (x.strip() for x in str_input.split(' + '))
+        print(str_input, '=', MyFraction(first) + MyFraction(second))
+    if str_input.find(' - ') > 0:
+        first, second = (x.strip() for x in str_input.split(' - '))
+        print(str_input, '=', MyFraction(first) - MyFraction(second))
+    if str_input.find(' * ') > 0:
+        first, second = (x.strip() for x in str_input.split(' * '))
+        print(str_input, '=', MyFraction(first) * MyFraction(second))
+    if str_input.find(' / ') > 0:
+        first, second = (x.strip() for x in str_input.split(' / '))
+        print(str_input, '=', MyFraction(first) / MyFraction(second))
+    if str_input.find(' > ') > 0:
+        first, second = (x.strip() for x in str_input.split(' > '))
+        print(str_input, '=', MyFraction(first) > MyFraction(second))
+    if str_input.find(' >= ') > 0:
+        first, second = (x.strip() for x in str_input.split(' >= '))
+        print(str_input, '=', MyFraction(first) >= MyFraction(second))
+    if str_input.find(' < ') > 0:
+        first, second = (x.strip() for x in str_input.split(' < '))
+        print(str_input, '=', MyFraction(first) < MyFraction(second))
+    if str_input.find(' <= ') > 0:
+        first, second = (x.strip() for x in str_input.split(' <= '))
+        print(str_input, '=', MyFraction(first) <= MyFraction(second))
+    if str_input.find(' == ') > 0:
+        first, second = (x.strip() for x in str_input.split(' == '))
+        print(str_input, '=', MyFraction(first) == MyFraction(second))
+    if str_input.find(' != ') > 0:
+        first, second = (x.strip() for x in str_input.split(' != '))
+        print(str_input, '=', MyFraction(first) != MyFraction(second))
+    print('*' * 70)
+
 
 # Задание-2:
 # Дана ведомость расчета заработной платы (файл "data/workers").
