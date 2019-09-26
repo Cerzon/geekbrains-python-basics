@@ -8,8 +8,14 @@ equation = 'y = -12x + 11111140.2121'
 x = 2.5
 # вычислите и выведите y
 
-
-import re
+print('*' * 70)
+print('Парсим уравнение и решаем его')
+op1, op2 = [
+    float(op.strip()[:-1]) * x if op.strip().endswith('x') else
+    float(op.strip()) for op in equation.split('=')[1].split('+')
+]
+print('Для x = {0} значение y = {1}'.format(x, op1 + op2))
+print('*' * 70)
 
 
 # Задание-2: Дата задана в виде строки формата 'dd.mm.yyyy'.
@@ -31,26 +37,26 @@ date = '1.12.1001'
 date = '-2.10.3001'
 
 
-def check_date(date_to_check):
-    if not re.match(r'^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0-2])\.\d{4}$', date_to_check):
-        return 'Некорректный формат даты.'
-    iday, imonth, iyear = [int(x) for x in date_to_check.split('.')]
-    MONTHS = dict([(x, 31) if (x % 2 and x < 8) or (not x % 2 and x > 7) else (x, 30) for x in range(1, 13)])
+import re
+
+print('*' * 70)
+print('Работаем с датами')
+input_date = input('Введите дату в формате dd.mm.yyyy: ')
+if not re.match(r'^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0-2])\.\d{4}$', input_date):
+    print('Некорректный формат даты.')
+else:
+    iday, imonth, iyear = [int(dp) for dp in input_date.split('.')]
+    MONTHS = dict([(mi, 31) if (mi % 2 and mi < 8) or (not mi % 2 and mi > 7) else
+                    (mi, 30) for mi in range(1, 13)])
     if iyear % 4:
         MONTHS[2] = 28
     else:
         MONTHS[2] = 29
     if iday > MONTHS[imonth] or iyear == 0:
-        return 'Введена некорректная дата.'
-    return iday, imonth, iyear
-
-
-if __name__ == '__main__':
-    print('*' * 70)
-    print('Работаем с датами')
-    input_date = input('Введите дату в формате dd.mm.yyyy: ')
-    print(check_date(input_date))
-    print('*' * 70)
+        print('Введена некорректная дата.')
+    else:
+        print(iday, imonth, iyear)
+print('*' * 70)
 
 
 # Задание-3: "Перевёрнутая башня" (Задача олимпиадного уровня)
@@ -83,17 +89,16 @@ if __name__ == '__main__':
 # Вход: 11
 # Выход: 5 3
 
-if __name__ == '__main__':
-    print('*' * 70)
-    print('Катаемся на лифте по Вавилонской башне')
-    print('-' * 70)
-    destination = int(input('Введите номер комнаты прибытия: '))
-    block = 1
-    while destination > sum([x**2 for x in range(block + 1)]):
-        block += 1
-    block_last_stage = sum(range(block + 1))
-    to_last_room = sum([x**2 for x in range(block + 1)]) - destination
-    stage = block_last_stage - to_last_room // block
-    from_left = block - to_last_room % block
-    print('Комната {0} находится на {1} этаже, {2}-ая слева'.format(destination, stage, from_left))
-    print('*' * 70)
+print('*' * 70)
+print('Катаемся на лифте по Вавилонской башне')
+print('-' * 70)
+destination = int(input('Введите номер комнаты прибытия: '))
+block = 1
+while destination > sum(i**2 for i in range(block + 1)):
+    block += 1
+block_last_stage = sum(range(block + 1))
+rooms_before_last = sum(i**2 for i in range(block + 1)) - destination
+stage = block_last_stage - rooms_before_last // block
+from_left = block - rooms_before_last % block
+print('Комната {0} находится на {1} этаже, {2}-ая слева'.format(destination, stage, from_left))
+print('*' * 70)
