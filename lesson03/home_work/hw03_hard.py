@@ -261,14 +261,17 @@ print('*' * 70)
 import os
 
 
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
 if __name__ == '__main__':
     print('*' * 70)
     print('Считаем отработанное время и чужие деньги')
-    answer = input('Выполнить чтение списка и запись по отдельным файлам? [Y/N] ').lower()
+    answer = input('Выполнить чтение данных из файлов и расчёт? [Y/N] ').lower()
     if answer == 'y' or answer == 'д':
         employee_list = []
         pattern = re.compile(r'^([а-яА-Я]+\b)[ \t]+(\b[-а-яА-Я]+\b)[ \t]+(\b\d+\b)[ \t]+(\b[-а-яА-Я]+\b)[ \t]+(\b\d+)$')
-        with open(os.path.join('data', 'workers'), 'r', encoding='utf-8') as employees:
+        with open(os.path.join(SCRIPT_DIR, 'data', 'workers'), 'r', encoding='utf-8') as employees:
             for record in (line.strip('\n ') for line in employees if len(line.strip('\n '))):
                 match = pattern.match(record)
                 if match:
@@ -276,7 +279,7 @@ if __name__ == '__main__':
                         ('first_name', 'last_name', 'salary', 'position', 'hours',),
                         (int(x) if x.isnumeric() else x for x in match.groups(default=None)))))
 
-        with open(os.path.join('data', 'hours_of'), 'r', encoding='utf-8') as worked_hours:
+        with open(os.path.join(SCRIPT_DIR, 'data', 'hours_of'), 'r', encoding='utf-8') as worked_hours:
             for record in (line.strip('\n ') for line in worked_hours if len(line.strip('\n '))):
                 for employee in employee_list:
                     if (employee['first_name'] in record and
@@ -336,8 +339,8 @@ if __name__ == '__main__':
     print('Читаем и пишем текстовые файлы')
     answer = input('Выполнить чтение списка и запись по отдельным файлам? [Y/N] ').lower()
     if answer == 'y' or answer == 'д':
-        with open(os.path.join('data', 'fruits.txt'), 'r', encoding='utf-8') as datafile:
+        with open(os.path.join(SCRIPT_DIR, 'data', 'fruits.txt'), 'r', encoding='utf-8') as datafile:
             for fruit in (line.strip('\n') for line in datafile if len(line.strip('\n'))):
-                with open(os.path.join('data', 'fruits_' + fruit[0].upper() + '.txt'), 'a', encoding='utf-8') as fruitfile:
+                with open(os.path.join(SCRIPT_DIR, 'data', 'fruits_' + fruit[0].upper() + '.txt'), 'a', encoding='utf-8') as fruitfile:
                     fruitfile.write(fruit + '\n')
     print('*' * 70)
