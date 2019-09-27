@@ -26,6 +26,7 @@ print('*' * 70)
 
 
 DAY_NAME = (
+    None,
     'первое',
     'второе',
     'третье',
@@ -60,6 +61,7 @@ DAY_NAME = (
 )
 
 MONTH_INFO = (
+    None,
     {'name': 'января', 'limit': 31,},
     {'name': 'февраля', 'limit': 29,},
     {'name': 'марта', 'limit': 31,},
@@ -80,11 +82,11 @@ print('-' * 70)
 in_date = input('Введите дату в формате dd.mm.yyyy: ')
 iday, imonth, iyear = [int(x) if x.isnumeric() else -1 for x in in_date.split('.')]
 if (iday < 1 or imonth < 1 or imonth > 12 or iyear < 1
-        or iday > MONTH_INFO[imonth - 1]['limit']
+        or iday > MONTH_INFO[imonth]['limit']
         or (imonth == 2 and iyear % 4 and iday == 29)):
     print('Дата введена неправильно')
 else:
-    print('{0} {1} {2} года'.format(DAY_NAME[iday - 1], MONTH_INFO[imonth - 1]['name'], iyear))
+    print('{0} {1} {2} года'.format(DAY_NAME[iday], MONTH_INFO[imonth]['name'], iyear))
 print('*' * 70)
 
 
