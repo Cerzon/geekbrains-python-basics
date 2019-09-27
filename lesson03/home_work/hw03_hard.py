@@ -16,201 +16,90 @@ import re
 
 class MyFraction:
     """
-    constructor: MyFraction(string) or MyFraction(int, int, int)
-    | string - literal representation of the fraction, i.e. '1 1/2', '-3 5/6'
-    | int, int, int - integer part (0 if absent), dividend (0 if the fraction
-    + --------------- part is absent), divider ( > 0! use 1 for default)
+    MyFraction(string)
+    |   string - literal representation of the fraction, i.e. '1 1/2', '-3 5/6'
     supports add, sub, mul, truediv, comparison
     """
-    def __init__(self, *args):
+    def __init__(self, str_fraction, _normalize=True):
         self._negative = False
-        self._entier = 0
         self._dividend = 0
         self._divider = 1
-        if isinstance(args[0], str):
-            match = re.match(
-                r'^(?P<entier>-?\d+\b)? ?((?P<dividend>(?(entier)|-?)\d+)/(?P<divider>\d+))?$',
-                args[0])
-            if match is None:
-                raise ValueError('Wrong fraction format. "{}" does not match to "[-][<int:entier>] [<int:dividend>/<int:divider>]"'.format(args[0]))
-            if match.group('entier'):
-                self._entier = int(match.group('entier'))
-            if match.group('dividend'):
-                self._dividend = int(match.group('dividend'))
-                self._divider = int(match.group('divider'))
-        elif len(args) == 3 and not False in (isinstance(x, int) for x in args):
-            self._entier, self._dividend, self._divider = args
-            if self._divider < 0:
-                raise ValueError('Wrong fraction format. Divider must be positive')
-        else:
-            return None
-        if self._divider == 0:
-            raise ValueError('Divider can not be zero')
-        if self._entier < 0:
-            self._negative = True
-            self._entier *= -1
-        if self._dividend < 0:
-            self._negative = True
-            self._dividend *= -1
-        self.simplify()
-
-    def simplify(self):
-        self._entier += self._dividend // self._divider
-        self._dividend = self._dividend % self._divider
-        for i in range(1, self._dividend // 2 + 1):
-            if not self._dividend % i and not self._divider % (self._dividend // i):
-                self._divider //= self._dividend // i
-                self._dividend = i
-                break
-        if self._dividend == 0:
-            self._divider = 1
-
-    def complicate(self):
-        self._dividend += self._entier * self._divider
-        self._entier = 0
+        match = re.match(
+            r'^(?P<entier>-?\d+\b)? ?((?P<dividend>(?(entier)|-?)\d+)/(?P<divider>\d+))?$',
+            str_fraction)
+        if match is None:
+            raise ValueError('Wrong fraction format. "{}" does not match to "[-][<int:entier>] [<int:dividend>/<int:divider>]"'.format(str_fraction))
+        if match.group('dividend'):
+            self._dividend, self._negative = (
+                abs(int(match.group('dividend'))),
+                int(match.group('dividend')) < 0)
+            self._divider = int(match.group('divider'))
+            if self._divider == 0:
+                raise ValueError("Divider can't be zero")
+        if match.group('entier'):
+            self._dividend, self._negative = (
+                self._dividend + abs(int(match.group('entier'))) * self._divider,
+                int(match.group('entier')) < 0,)
+        if _normalize:
+            entier, self._dividend = divmod(self._dividend, self._divider)
+            for i in range(1, self._dividend // 2 + 1):
+                if not self._dividend % i and not self._divider % (self._dividend // i):
+                    self._divider //= self._dividend // i
+                    self._dividend = i
+                    break
+            self._dividend += entier * self._divider
 
     def __str__(self):
         str_output = ''
-        if self._entier:
-            str_output = str(self._entier * (-1 if self._negative else 1))
-        if self._dividend:
-            if len(str_output):
-                str_output += ' '
-            else:
-                str_output = '-' if self._negative else ''
-            str_output += '{0}/{1}'.format(self._dividend, self._divider)
-        return str_output
+        entier, dividend = divmod(self._dividend, self._divider)
+        if entier and dividend:
+            entier *= -1 if self._negative else 1
+            str_output = '{0} {1}/{2}'
+        elif dividend:
+            dividend *= -1 if self._negative else 1
+            str_output = '{1}/{2}'
+        else:
+            entier *= -1 if self._negative else 1
+            str_output = '{0}'
+        return str_output.format(entier, dividend, self._divider)
 
     def __add__(self, other):
-        if not isinstance(other, MyFraction):
-            if isinstance(other, int):
-                other = MyFraction(other, 0, 1)
-            else:
-                return NotImplemented
-        self.complicate()
-        other.complicate()
-        res_dividend = self._dividend * (-1 if self._negative else 1) * other._divider + other._dividend * (-1 if other._negative else 1) * self._divider
-        self.simplify()
-        other.simplify()
-        return MyFraction(0, res_dividend, self._divider * other._divider)
+        return MyFraction('{0}/{1}'.format(
+            self._dividend * (-1 if self._negative else 1) * other._divider + other._dividend * (-1 if other._negative else 1) * self._divider,
+            self._divider * other._divider))
 
     def __sub__(self, other):
-        if not isinstance(other, MyFraction):
-            if isinstance(other, int):
-                other = MyFraction(other, 0, 1)
-            else:
-                return NotImplemented
-        self.complicate()
-        other.complicate()
-        res_dividend = self._dividend * (-1 if self._negative else 1) * other._divider - other._dividend * (-1 if other._negative else 1) * self._divider
-        self.simplify()
-        other.simplify()
-        return MyFraction(0, res_dividend, self._divider * other._divider)
+        return MyFraction('{0}/{1}'.format(
+            self._dividend * (-1 if self._negative else 1) * other._divider - other._dividend * (-1 if other._negative else 1) * self._divider,
+            self._divider * other._divider))
 
     def __mul__(self, other):
-        if not isinstance(other, MyFraction):
-            if isinstance(other, int):
-                other = MyFraction(other, 0, 1)
-            else:
-                return NotImplemented
-        self.complicate()
-        other.complicate()
-        res_dividend = self._dividend * (-1 if self._negative else 1) * other._dividend * (-1 if other._negative else 1)
-        self.simplify()
-        other.simplify()
-        return MyFraction(0, res_dividend, self._divider * other._divider)
+        return MyFraction('{0}/{1}'.format(
+            self._dividend * (-1 if self._negative else 1) * other._dividend * (-1 if other._negative else 1),
+            self._divider * other._divider))
 
     def __truediv__(self, other):
-        if not isinstance(other, MyFraction):
-            if isinstance(other, int):
-                other = MyFraction(other, 0, 1)
-            else:
-                return NotImplemented
-        self.complicate()
-        other.complicate()
-        res_dividend = self._dividend * (-1 if self._negative else 1) * other._divider * (-1 if other._negative else 1)
-        res_divider = self._divider * other._dividend
-        self.simplify()
-        other.simplify()
-        return MyFraction(0, res_dividend, res_divider)
+        return MyFraction('{0}/{1}'.format(
+            self._dividend * (-1 if self._negative else 1) * other._divider * (-1 if other._negative else 1),
+            self._divider * other._dividend))
 
     def __lt__(self, other):
-        if not isinstance(other, MyFraction):
-            if isinstance(other, int):
-                other = MyFraction(other, 0, 1)
-            else:
-                return NotImplemented
-        self.complicate()
-        other.complicate()
-        result = self._dividend * (-1 if self._negative else 1) * other._divider < other._dividend * (-1 if other._negative else 1) * self._divider
-        self.simplify()
-        other.simplify()
-        return result
+        return self._dividend * (-1 if self._negative else 1) * other._divider < other._dividend * (-1 if other._negative else 1) * self._divider
 
     def __le__(self, other):
-        if not isinstance(other, MyFraction):
-            if isinstance(other, int):
-                other = MyFraction(other, 0, 1)
-            else:
-                return NotImplemented
-        self.complicate()
-        other.complicate()
-        result = self._dividend * (-1 if self._negative else 1) * other._divider <= other._dividend * (-1 if other._negative else 1) * self._divider
-        self.simplify()
-        other.simplify()
-        return result
+        return self._dividend * (-1 if self._negative else 1) * other._divider <= other._dividend * (-1 if other._negative else 1) * self._divider
 
     def __gt__(self, other):
-        if not isinstance(other, MyFraction):
-            if isinstance(other, int):
-                other = MyFraction(other, 0, 1)
-            else:
-                return NotImplemented
-        self.complicate()
-        other.complicate()
-        result = self._dividend * (-1 if self._negative else 1) * other._divider > other._dividend * (-1 if other._negative else 1) * self._divider
-        self.simplify()
-        other.simplify()
-        return result
+        return self._dividend * (-1 if self._negative else 1) * other._divider > other._dividend * (-1 if other._negative else 1) * self._divider
 
     def __ge__(self, other):
-        if not isinstance(other, MyFraction):
-            if isinstance(other, int):
-                other = MyFraction(other, 0, 1)
-            else:
-                return NotImplemented
-        self.complicate()
-        other.complicate()
-        result = self._dividend * (-1 if self._negative else 1) * other._divider >= other._dividend * (-1 if other._negative else 1) * self._divider
-        self.simplify()
-        other.simplify()
-        return result
+        return self._dividend * (-1 if self._negative else 1) * other._divider >= other._dividend * (-1 if other._negative else 1) * self._divider
 
     def __eq__(self, other):
-        if not isinstance(other, MyFraction):
-            if isinstance(other, int):
-                other = MyFraction(other, 0, 1)
-            else:
-                return NotImplemented
-        self.complicate()
-        other.complicate()
-        result = self._dividend * (-1 if self._negative else 1) * other._divider == other._dividend * (-1 if other._negative else 1) * self._divider
-        self.simplify()
-        other.simplify()
-        return result
+        return self._dividend * (-1 if self._negative else 1) * other._divider == other._dividend * (-1 if other._negative else 1) * self._divider
 
     def __ne__(self, other):
-        if not isinstance(other, MyFraction):
-            if isinstance(other, int):
-                other = MyFraction(other, 0, 1)
-            else:
-                return NotImplemented
-        self.complicate()
-        other.complicate()
-        result = self._dividend * (-1 if self._negative else 1) * other._divider != other._dividend * (-1 if other._negative else 1) * self._divider
-        self.simplify()
-        other.simplify()
-        return result
+        return self._dividend * (-1 if self._negative else 1) * other._divider != other._dividend * (-1 if other._negative else 1) * self._divider
 
 
 print('*' * 70)
