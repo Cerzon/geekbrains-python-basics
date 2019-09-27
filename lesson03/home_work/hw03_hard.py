@@ -264,60 +264,60 @@ import os
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-if __name__ == '__main__':
-    print('*' * 70)
-    print('Считаем отработанное время и чужие деньги')
-    answer = input('Выполнить чтение данных из файлов и расчёт? [Y/N] ').lower()
-    if answer == 'y' or answer == 'д':
-        employee_list = []
-        pattern = re.compile(r'^([а-яА-Я]+\b)[ \t]+(\b[-а-яА-Я]+\b)[ \t]+(\b\d+\b)[ \t]+(\b[-а-яА-Я]+\b)[ \t]+(\b\d+)$')
-        with open(os.path.join(SCRIPT_DIR, 'data', 'workers'), 'r', encoding='utf-8') as employees:
-            for record in (line.strip('\n ') for line in employees if len(line.strip('\n '))):
-                match = pattern.match(record)
-                if match:
-                    employee_list.append(dict(zip(
-                        ('first_name', 'last_name', 'salary', 'position', 'hours',),
-                        (int(x) if x.isnumeric() else x for x in match.groups(default=None)))))
+print('*' * 70)
+print('Считаем отработанное время и чужие деньги')
+answer = input('Выполнить чтение данных из файлов и расчёт? [Y/N] ').lower()
+if answer == 'y' or answer == 'д':
+    employee_list = []
+    pattern = re.compile(r'^([а-яА-Я]+\b)[ \t]+(\b[-а-яА-Я]+\b)[ \t]+(\b\d+\b)[ \t]+(\b[-а-яА-Я]+\b)[ \t]+(\b\d+)$')
+    with open(os.path.join(SCRIPT_DIR, 'data', 'workers'), 'r', encoding='utf-8') as employees:
+        for record in (line.strip('\n ') for line in employees if len(line.strip('\n '))):
+            match = pattern.match(record)
+            if match:
+                employee_list.append(dict(zip(
+                    ('first_name', 'last_name', 'salary', 'position', 'hours',),
+                    (int(x) if x.isnumeric() else x for x in match.groups(default=None)))))
 
-        with open(os.path.join(SCRIPT_DIR, 'data', 'hours_of'), 'r', encoding='utf-8') as worked_hours:
-            for record in (line.strip('\n ') for line in worked_hours if len(line.strip('\n '))):
-                for employee in employee_list:
-                    if (employee['first_name'] in record and
-                        employee['last_name'] in record):
-                        match = re.match(
-                            r'^{0}[ \t]+{1}[ \t]+(\b\d+)$'.format(employee['first_name'],
-                                employee['last_name']), record)
-                        employee['worked_out'] = int(match.group(1))
-                        employee['pay_out'] = int(employee['salary'] * (
-                            1 + (employee['worked_out'] / employee['hours'] - 1) * (
-                                2 if employee['worked_out'] > employee['hours'] else 1)))
+    with open(os.path.join(SCRIPT_DIR, 'data', 'hours_of'), 'r', encoding='utf-8') as worked_hours:
+        for record in (line.strip('\n ') for line in worked_hours if len(line.strip('\n '))):
+            for employee in employee_list:
+                if (employee['first_name'] in record and
+                    employee['last_name'] in record):
+                    match = re.match(
+                        r'^{0}[ \t]+{1}[ \t]+(\b\d+)$'.format(employee['first_name'],
+                            employee['last_name']), record)
+                    employee['worked_out'] = int(match.group(1))
+                    employee['pay_out'] = int(employee['salary'] * (
+                        1 + (employee['worked_out'] / employee['hours'] - 1) * (
+                            2 if employee['worked_out'] > employee['hours'] else 1)))
 
-        # fn_wdth = max(len(emval) for emp in employee_list for emkey, emval in emp.items() if emkey == 'first_name')
-        # ln_wdth = max(len(emval) for emp in employee_list for emkey, emval in emp.items() if emkey == 'last_name')
-        # ps_wdth = max(len(emval) for emp in employee_list for emkey, emval in emp.items() if emkey == 'position')
-        # sl_wdth = max(len(str(emval)) for emp in employee_list for emkey, emval in emp.items() if emkey == 'salary')
-        # hr_wdth = max(len(str(emval)) for emp in employee_list for emkey, emval in emp.items() if emkey == 'hours')
-        # wo_wdth = max(len(str(emval)) for emp in employee_list for emkey, emval in emp.items() if emkey == 'worked_out')
-        # po_wdth = max(len(str(emval)) for emp in employee_list for emkey, emval in emp.items() if emkey == 'pay_out')
-        # for employee in employee_list:
-        #     print(
-        #         '{0:<{fn_wdth}} {1:<{ln_wdth}}  {2:<{ps_wdth}}  {3:>{sl_wdth}}  {4:>{hr_wdth}}  {5:>{wo_wdth}}  {6:>{po_wdth}}'.format(
-        #             employee['first_name'],
-        #             employee['last_name'],
-        #             employee['position'],
-        #             employee['salary'],
-        #             employee['hours'],
-        #             employee['worked_out'],
-        #             employee['pay_out'],
-        #             fn_wdth=fn_wdth,
-        #             ln_wdth=ln_wdth,
-        #             ps_wdth=ps_wdth,
-        #             sl_wdth=sl_wdth,
-        #             hr_wdth=hr_wdth,
-        #             wo_wdth=wo_wdth,
-        #             po_wdth=po_wdth
-        #         )
-        #     )
+    # fn_wdth = max(len(emval) for emp in employee_list for emkey, emval in emp.items() if emkey == 'first_name')
+    # ln_wdth = max(len(emval) for emp in employee_list for emkey, emval in emp.items() if emkey == 'last_name')
+    # ps_wdth = max(len(emval) for emp in employee_list for emkey, emval in emp.items() if emkey == 'position')
+    # sl_wdth = max(len(str(emval)) for emp in employee_list for emkey, emval in emp.items() if emkey == 'salary')
+    # hr_wdth = max(len(str(emval)) for emp in employee_list for emkey, emval in emp.items() if emkey == 'hours')
+    # wo_wdth = max(len(str(emval)) for emp in employee_list for emkey, emval in emp.items() if emkey == 'worked_out')
+    # po_wdth = max(len(str(emval)) for emp in employee_list for emkey, emval in emp.items() if emkey == 'pay_out')
+    # for employee in employee_list:
+    #     print(
+    #         '{0:<{fn_wdth}} {1:<{ln_wdth}}  {2:<{ps_wdth}}  {3:>{sl_wdth}}  {4:>{hr_wdth}}  {5:>{wo_wdth}}  {6:>{po_wdth}}'.format(
+    #             employee['first_name'],
+    #             employee['last_name'],
+    #             employee['position'],
+    #             employee['salary'],
+    #             employee['hours'],
+    #             employee['worked_out'],
+    #             employee['pay_out'],
+    #             fn_wdth=fn_wdth,
+    #             ln_wdth=ln_wdth,
+    #             ps_wdth=ps_wdth,
+    #             sl_wdth=sl_wdth,
+    #             hr_wdth=hr_wdth,
+    #             wo_wdth=wo_wdth,
+    #             po_wdth=po_wdth
+    #         )
+    #     )
+print('*' * 70)
 
 
 # Задание-3:
@@ -334,13 +334,12 @@ if __name__ == '__main__':
 # print(list(map(chr, range(ord('А'), ord('Я')+1))))
 
 
-if __name__ == '__main__':
-    print('*' * 70)
-    print('Читаем и пишем текстовые файлы')
-    answer = input('Выполнить чтение списка и запись по отдельным файлам? [Y/N] ').lower()
-    if answer == 'y' or answer == 'д':
-        with open(os.path.join(SCRIPT_DIR, 'data', 'fruits.txt'), 'r', encoding='utf-8') as datafile:
-            for fruit in (line.strip('\n') for line in datafile if len(line.strip('\n'))):
-                with open(os.path.join(SCRIPT_DIR, 'data', 'fruits_' + fruit[0].upper() + '.txt'), 'a', encoding='utf-8') as fruitfile:
-                    fruitfile.write(fruit + '\n')
-    print('*' * 70)
+print('*' * 70)
+print('Читаем и пишем текстовые файлы')
+answer = input('Выполнить чтение списка и запись по отдельным файлам? [Y/N] ').lower()
+if answer == 'y' or answer == 'д':
+    with open(os.path.join(SCRIPT_DIR, 'data', 'fruits.txt'), 'r', encoding='utf-8') as datafile:
+        for fruit in (line.strip('\n') for line in datafile if len(line.strip('\n'))):
+            with open(os.path.join(SCRIPT_DIR, 'data', 'fruits_' + fruit[0].upper() + '.txt'), 'a', encoding='utf-8') as fruitfile:
+                fruitfile.write(fruit + '\n')
+print('*' * 70)
