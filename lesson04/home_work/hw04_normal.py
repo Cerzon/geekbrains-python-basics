@@ -79,6 +79,11 @@ line_2 = 'mtMmEZUOmcqWiryMQhhTxqKdSTKCYEJlEZCsGAMkgAYEOmHBSQsSUHKvSfbmxULaysm'\
        'oiQzTYwZAiRwycdlHfyHNGmkNqSwXUrxGC'
 
 
+print('*' * 70)
+print('Ищем в строке особым образом расположенные группы символов в верхнем регистре')
+print('-' * 70)
+print('С помощью модуля регулярных выражений re')
+
 re_match = re.findall(r'[a-z]{2}([A-Z]+)[A-Z]{2}', line_2)
 print(re_match, len(re_match))
 
