@@ -22,84 +22,93 @@ class MyFraction:
     """
     def __init__(self, str_fraction, _normalize=True):
         self._negative = False
-        self._dividend = 0
-        self._divider = 1
+        self._numerator = 0
+        self._denominator = 1
         match = re.match(
-            r'^(?P<entier>-?\d+\b)? ?((?P<dividend>(?(entier)|-?)\d+)/(?P<divider>\d+))?$',
+            r'^(?P<entier>-?\d+\b)? ?((?P<numerator>(?(entier)|-?)\d+)/(?P<denominator>\d+))?$',
             str_fraction)
         if match is None:
-            raise ValueError('Wrong fraction format. "{}" does not match to "[-][<int:entier>] [<int:dividend>/<int:divider>]"'.format(str_fraction))
-        if match.group('dividend'):
-            self._dividend, self._negative = (
-                abs(int(match.group('dividend'))),
-                int(match.group('dividend')) < 0)
-            self._divider = int(match.group('divider'))
-            if self._divider == 0:
-                raise ValueError("Divider can't be zero")
+            raise ValueError('Wrong fraction format. "{}" does not match to ' \
+                '"[-][<int:entier>] [<int:numerator>/<int:denominator>]"'.format(str_fraction))
+        if match.group('numerator'):
+            self._negative = int(match.group('numerator')) < 0
+            self._numerator = abs(int(match.group('numerator')))
+            self._denominator = int(match.group('denominator'))
+            if self._denominator == 0:
+                raise ValueError("Denominator can't be zero")
         if match.group('entier'):
-            self._dividend, self._negative = (
-                self._dividend + abs(int(match.group('entier'))) * self._divider,
-                int(match.group('entier')) < 0,)
+            self._negative = int(match.group('entier')) < 0
+            self._numerator += abs(int(match.group('entier'))) * self._denominator
         if _normalize:
-            entier, self._dividend = divmod(self._dividend, self._divider)
-            for i in range(1, self._dividend // 2 + 1):
-                if not self._dividend % i and not self._divider % (self._dividend // i):
-                    self._divider //= self._dividend // i
-                    self._dividend = i
+            entier, self._numerator = divmod(self._numerator, self._denominator)
+            for i in range(1, self._numerator // 2 + 1):
+                if not self._numerator % i and not self._denominator % (self._numerator // i):
+                    self._denominator //= self._numerator // i
+                    self._numerator = i
                     break
-            self._dividend += entier * self._divider
+            self._numerator += entier * self._denominator
 
     def __str__(self):
         str_output = ''
-        entier, dividend = divmod(self._dividend, self._divider)
-        if entier and dividend:
+        entier, numerator = divmod(self._numerator, self._denominator)
+        if entier and numerator:
             entier *= -1 if self._negative else 1
             str_output = '{0} {1}/{2}'
-        elif dividend:
-            dividend *= -1 if self._negative else 1
+        elif numerator:
+            numerator *= -1 if self._negative else 1
             str_output = '{1}/{2}'
         else:
             entier *= -1 if self._negative else 1
             str_output = '{0}'
-        return str_output.format(entier, dividend, self._divider)
+        return str_output.format(entier, numerator, self._denominator)
 
     def __add__(self, other):
         return MyFraction('{0}/{1}'.format(
-            self._dividend * (-1 if self._negative else 1) * other._divider + other._dividend * (-1 if other._negative else 1) * self._divider,
-            self._divider * other._divider))
+            (self._numerator * (-1 if self._negative else 1) * other._denominator +
+            other._numerator * (-1 if other._negative else 1) * self._denominator),
+            self._denominator * other._denominator))
 
     def __sub__(self, other):
         return MyFraction('{0}/{1}'.format(
-            self._dividend * (-1 if self._negative else 1) * other._divider - other._dividend * (-1 if other._negative else 1) * self._divider,
-            self._divider * other._divider))
+            (self._numerator * (-1 if self._negative else 1) * other._denominator -
+            other._numerator * (-1 if other._negative else 1) * self._denominator),
+            self._denominator * other._denominator))
 
     def __mul__(self, other):
         return MyFraction('{0}/{1}'.format(
-            self._dividend * (-1 if self._negative else 1) * other._dividend * (-1 if other._negative else 1),
-            self._divider * other._divider))
+            (self._numerator * (-1 if self._negative else 1) *
+            other._numerator * (-1 if other._negative else 1)),
+            self._denominator * other._denominator))
 
     def __truediv__(self, other):
         return MyFraction('{0}/{1}'.format(
-            self._dividend * (-1 if self._negative else 1) * other._divider * (-1 if other._negative else 1),
-            self._divider * other._dividend))
+            (self._numerator * (-1 if self._negative else 1) *
+            other._denominator * (-1 if other._negative else 1)),
+            self._denominator * other._numerator))
 
     def __lt__(self, other):
-        return self._dividend * (-1 if self._negative else 1) * other._divider < other._dividend * (-1 if other._negative else 1) * self._divider
+        return (self._numerator * (-1 if self._negative else 1) * other._denominator
+            < other._numerator * (-1 if other._negative else 1) * self._denominator)
 
     def __le__(self, other):
-        return self._dividend * (-1 if self._negative else 1) * other._divider <= other._dividend * (-1 if other._negative else 1) * self._divider
+        return (self._numerator * (-1 if self._negative else 1) * other._denominator
+            <= other._numerator * (-1 if other._negative else 1) * self._denominator)
 
     def __gt__(self, other):
-        return self._dividend * (-1 if self._negative else 1) * other._divider > other._dividend * (-1 if other._negative else 1) * self._divider
+        return (self._numerator * (-1 if self._negative else 1) * other._denominator
+            > other._numerator * (-1 if other._negative else 1) * self._denominator)
 
     def __ge__(self, other):
-        return self._dividend * (-1 if self._negative else 1) * other._divider >= other._dividend * (-1 if other._negative else 1) * self._divider
+        return (self._numerator * (-1 if self._negative else 1) * other._denominator
+            >= other._numerator * (-1 if other._negative else 1) * self._denominator)
 
     def __eq__(self, other):
-        return self._dividend * (-1 if self._negative else 1) * other._divider == other._dividend * (-1 if other._negative else 1) * self._divider
+        return (self._numerator * (-1 if self._negative else 1) * other._denominator
+            == other._numerator * (-1 if other._negative else 1) * self._denominator)
 
     def __ne__(self, other):
-        return self._dividend * (-1 if self._negative else 1) * other._divider != other._dividend * (-1 if other._negative else 1) * self._divider
+        return (self._numerator * (-1 if self._negative else 1) * other._denominator
+            != other._numerator * (-1 if other._negative else 1) * self._denominator)
 
 
 print('*' * 70)
