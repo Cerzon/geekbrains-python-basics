@@ -24,6 +24,36 @@ line = 'mtMmEZUOmcqWiryMQhhTxqKdSTKCYEJlEZCsGAMkgAYEOmHBSQsSUHKvSfbmxULaysmNO'\
        'zTYwZAiRwycdlHfyHNGmkNqSwXUrxGc'
 
 
+print('*' * 70)
+print('Ищем в строке группы символов в нижнем регистре')
+print('-' * 70)
+print('С помощью модуля регулярных выражений re')
+
+import re
+
+re_match = re.findall(r'[a-z]+', line)
+print(re_match, len(re_match))
+
+print('-' * 70)
+print('Без помощи модуля регулярных выражений re')
+
+lowercase = 'abcdefghijklmnopqrstuvwxyz'
+str_group = ''
+match_list = []
+for symb in line:
+    if symb in lowercase:
+        str_group += symb
+    elif str_group:
+        match_list.append(str_group)
+        str_group = ''
+else:
+    if str_group:
+        match_list.append(str_group)
+
+print(match_list, len(match_list))
+
+print('*' * 70)
+
 # Задание-2:
 # Вывести символы в верхнем регистре, слева от которых находятся
 # два символа в нижнем регистре, а справа - два символа в верхнем регистре.
@@ -47,6 +77,11 @@ line_2 = 'mtMmEZUOmcqWiryMQhhTxqKdSTKCYEJlEZCsGAMkgAYEOmHBSQsSUHKvSfbmxULaysm'\
        'uXBqHFjvihuNGEEFsfnMXTfptvIOlhKhyYwxLnqOsBdGvnuyEZIheApQGOXWeXoLWiDQN'\
        'JFaXiUWgsKQrDOeZoNlZNRvHnLgCmysUeKnVJXPFIzvdDyleXylnKBfLCjLHntltignbQ'\
        'oiQzTYwZAiRwycdlHfyHNGmkNqSwXUrxGC'
+
+
+re_match = re.findall(r'[a-z]{2}([A-Z]+)[A-Z]{2}', line_2)
+print(re_match, len(re_match))
+
 
 # Задание-3:
 # Напишите скрипт, заполняющий указанный файл (самостоятельно задайте имя файла)
