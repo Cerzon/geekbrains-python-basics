@@ -20,7 +20,7 @@ class MyFraction:
     |   string - literal representation of the fraction, i.e. '1 1/2', '-3 5/6'
     supports add, sub, mul, truediv, comparison
     """
-    def __init__(self, str_fraction, _normalize=True):
+    def __init__(self, str_fraction):
         self._negative = False
         self._numerator = 0
         self._denominator = 1
@@ -39,14 +39,13 @@ class MyFraction:
         if match.group('entier'):
             self._negative = int(match.group('entier')) < 0
             self._numerator += abs(int(match.group('entier'))) * self._denominator
-        if _normalize:
-            entier, self._numerator = divmod(self._numerator, self._denominator)
-            for i in range(1, self._numerator // 2 + 1):
-                if not self._numerator % i and not self._denominator % (self._numerator // i):
-                    self._denominator //= self._numerator // i
-                    self._numerator = i
-                    break
-            self._numerator += entier * self._denominator
+        entier, self._numerator = divmod(self._numerator, self._denominator)
+        for i in range(1, self._numerator // 2 + 1):
+            if not self._numerator % i and not self._denominator % (self._numerator // i):
+                self._denominator //= self._numerator // i
+                self._numerator = i
+                break
+        self._numerator += entier * self._denominator
 
     def __str__(self):
         str_output = ''
