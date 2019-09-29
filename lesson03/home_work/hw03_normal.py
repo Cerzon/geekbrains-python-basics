@@ -13,11 +13,11 @@ def fibonacci(n, m):
     prev, curr = (1, 1,)
     result = []
     if n == 1 and m >= 2:
-        result = [1, 1,]
+        result = [1, 1]
     elif n == m == 1 or n == 2:
-        result = [1,]
+        result = [1]
     for i in range(3, m + 1):
-        prev, curr = (curr, prev + curr)
+        prev, curr = (curr, prev + curr,)
         if i >= n:
             result.append(curr)
     return result
