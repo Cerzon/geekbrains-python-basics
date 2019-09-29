@@ -176,11 +176,12 @@ with open(os.path.join(SCRIPT_DIR, 'data', 'workers'), 'r', encoding='utf-8') as
 with open(os.path.join(SCRIPT_DIR, 'data', 'hours_of'), 'r', encoding='utf-8') as worked_hours:
     for record in (line.strip('\n ') for line in worked_hours if len(line.strip('\n '))):
         for employee in employee_list:
-            if (employee['first_name'] in record and
-                employee['last_name'] in record):
+            if (employee['first_name'] in record and employee['last_name'] in record):
                 match = re.match(
-                    r'^{0}[ \t]+{1}[ \t]+(\b\d+)$'.format(employee['first_name'],
-                        employee['last_name']), record)
+                    r'^{0}[ \t]+{1}[ \t]+(\b\d+)$'.format(
+                        employee['first_name'],
+                        employee['last_name']
+                    ), record)
                 employee['worked_out'] = int(match.group(1))
                 diff_modifier = 1
                 if employee['worked_out'] > employee['hours']:
