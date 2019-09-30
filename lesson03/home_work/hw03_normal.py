@@ -54,21 +54,21 @@ sort_to_max([2, 10, -12, 2.5, 20, -11, 4, 4, 0])
 # Разумеется, внутри нельзя использовать саму функцию filter.
 
 
-def my_filter(*args):
+def my_filter(func_name, array):
     """
-    my_filter(function, iterable)
-    or
-    my_filter(iterable)
+    my_filter(function or None, iterable)
     -------------------------------------------------
-    Возвращаем список (можно бы и просто генератор) с
+    Возвращаем список (хотя в оригинале просто генератор) с
     ненулевыми и непустыми элементами изначального,
     либо, при передачи имени функции в первом аргументе,
     если результат выполнения фунцкии для элемента
     не нулевой/ложный/None
     """
-    if len(args) == 2:
-        return [x for x in args[1] if args[0](x)]
-    return [x for x in args[0] if x]
+    if func_name is None:
+        return [x for x in array if bool(x)]
+    else:
+        return [x for x in array if func_name(x)]
+    
 
 
 # Задача-4:

@@ -21,9 +21,9 @@ class MyFraction:
     supports add, sub, mul, truediv, comparison
     """
     def __init__(self, str_fraction):
-        self._negative = False
-        self._numerator = 0
-        self._denominator = 1
+        self._neg = False
+        self._num = 0
+        self._den = 1
         match = re.match(
             r'^(?P<entier>-?\d+\b)? ?((?P<numerator>(?(entier)|-?)\d+)/(?P<denominator>\d+))?$',
             str_fraction)
@@ -31,83 +31,83 @@ class MyFraction:
             raise ValueError('Wrong fraction format. "{}" does not match to ' \
                 '"[-][<int:entier>] [<int:numerator>/<int:denominator>]"'.format(str_fraction))
         if match.group('numerator'):
-            self._negative = int(match.group('numerator')) < 0
-            self._numerator = abs(int(match.group('numerator')))
-            self._denominator = int(match.group('denominator'))
-            if self._denominator == 0:
+            self._neg = int(match.group('numerator')) < 0
+            self._num = abs(int(match.group('numerator')))
+            self._den = int(match.group('denominator'))
+            if self._den == 0:
                 raise ValueError("Denominator can't be zero")
         if match.group('entier'):
-            self._negative = int(match.group('entier')) < 0
-            self._numerator += abs(int(match.group('entier'))) * self._denominator
-        entier, self._numerator = divmod(self._numerator, self._denominator)
-        for i in range(1, self._numerator // 2 + 1):
-            if not self._numerator % i and not self._denominator % (self._numerator // i):
-                self._denominator //= self._numerator // i
-                self._numerator = i
+            self._neg = int(match.group('entier')) < 0
+            self._num += abs(int(match.group('entier'))) * self._den
+        entier, self._num = divmod(self._num, self._den)
+        for i in range(1, self._num // 2 + 1):
+            if not self._num % i and not self._den % (self._num // i):
+                self._den //= self._num // i
+                self._num = i
                 break
-        self._numerator += entier * self._denominator
+        self._num += entier * self._den
 
     def __str__(self):
         str_output = ''
-        entier, numerator = divmod(self._numerator, self._denominator)
+        entier, numerator = divmod(self._num, self._den)
         if entier and numerator:
-            entier *= -1 if self._negative else 1
+            entier *= -1 if self._neg else 1
             str_output = '{0} {1}/{2}'
         elif numerator:
-            numerator *= -1 if self._negative else 1
+            numerator *= -1 if self._neg else 1
             str_output = '{1}/{2}'
         else:
-            entier *= -1 if self._negative else 1
+            entier *= -1 if self._neg else 1
             str_output = '{0}'
-        return str_output.format(entier, numerator, self._denominator)
+        return str_output.format(entier, numerator, self._den)
 
     def __add__(self, other):
         return MyFraction('{0}/{1}'.format(
-            (self._numerator * (-1 if self._negative else 1) * other._denominator +
-            other._numerator * (-1 if other._negative else 1) * self._denominator),
-            self._denominator * other._denominator))
+            (self._num * (-1 if self._neg else 1) * other._den +
+            other._num * (-1 if other._neg else 1) * self._den),
+            self._den * other._den))
 
     def __sub__(self, other):
         return MyFraction('{0}/{1}'.format(
-            (self._numerator * (-1 if self._negative else 1) * other._denominator -
-            other._numerator * (-1 if other._negative else 1) * self._denominator),
-            self._denominator * other._denominator))
+            (self._num * (-1 if self._neg else 1) * other._den -
+            other._num * (-1 if other._neg else 1) * self._den),
+            self._den * other._den))
 
     def __mul__(self, other):
         return MyFraction('{0}/{1}'.format(
-            (self._numerator * (-1 if self._negative else 1) *
-            other._numerator * (-1 if other._negative else 1)),
-            self._denominator * other._denominator))
+            (self._num * (-1 if self._neg else 1) *
+            other._num * (-1 if other._neg else 1)),
+            self._den * other._den))
 
     def __truediv__(self, other):
         return MyFraction('{0}/{1}'.format(
-            (self._numerator * (-1 if self._negative else 1) *
-            other._denominator * (-1 if other._negative else 1)),
-            self._denominator * other._numerator))
+            (self._num * (-1 if self._neg else 1) *
+            other._den * (-1 if other._neg else 1)),
+            self._den * other._num))
 
     def __lt__(self, other):
-        return (self._numerator * (-1 if self._negative else 1) * other._denominator
-            < other._numerator * (-1 if other._negative else 1) * self._denominator)
+        return (self._num * (-1 if self._neg else 1) * other._den
+            < other._num * (-1 if other._neg else 1) * self._den)
 
     def __le__(self, other):
-        return (self._numerator * (-1 if self._negative else 1) * other._denominator
-            <= other._numerator * (-1 if other._negative else 1) * self._denominator)
+        return (self._num * (-1 if self._neg else 1) * other._den
+            <= other._num * (-1 if other._neg else 1) * self._den)
 
     def __gt__(self, other):
-        return (self._numerator * (-1 if self._negative else 1) * other._denominator
-            > other._numerator * (-1 if other._negative else 1) * self._denominator)
+        return (self._num * (-1 if self._neg else 1) * other._den
+            > other._num * (-1 if other._neg else 1) * self._den)
 
     def __ge__(self, other):
-        return (self._numerator * (-1 if self._negative else 1) * other._denominator
-            >= other._numerator * (-1 if other._negative else 1) * self._denominator)
+        return (self._num * (-1 if self._neg else 1) * other._den
+            >= other._num * (-1 if other._neg else 1) * self._den)
 
     def __eq__(self, other):
-        return (self._numerator * (-1 if self._negative else 1) * other._denominator
-            == other._numerator * (-1 if other._negative else 1) * self._denominator)
+        return (self._num * (-1 if self._neg else 1) * other._den
+            == other._num * (-1 if other._neg else 1) * self._den)
 
     def __ne__(self, other):
-        return (self._numerator * (-1 if self._negative else 1) * other._denominator
-            != other._numerator * (-1 if other._negative else 1) * self._denominator)
+        return (self._num * (-1 if self._neg else 1) * other._den
+            != other._num * (-1 if other._neg else 1) * self._den)
 
 
 print('*' * 70)
@@ -161,8 +161,8 @@ import os
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-print('*' * 70)
-print('Считаем отработанное время и чужие деньги')
+# print('*' * 70)
+# print('Считаем отработанное время и чужие деньги')
 employee_list = []
 pattern = re.compile(r'^([а-яА-Я]+\b)[ \t]+(\b[-а-яА-Я]+\b)[ \t]+(\b\d+\b)[ \t]+(\b[-а-яА-Я]+\b)[ \t]+(\b\d+)$')
 with open(os.path.join(SCRIPT_DIR, 'data', 'workers'), 'r', encoding='utf-8') as employees:
@@ -177,12 +177,8 @@ with open(os.path.join(SCRIPT_DIR, 'data', 'hours_of'), 'r', encoding='utf-8') a
     for record in (line.strip('\n ') for line in worked_hours if len(line.strip('\n '))):
         for employee in employee_list:
             if (employee['first_name'] in record and employee['last_name'] in record):
-                match = re.match(
-                    r'^{0}[ \t]+{1}[ \t]+(\b\d+)$'.format(
-                        employee['first_name'],
-                        employee['last_name']
-                    ), record)
-                employee['worked_out'] = int(match.group(1))
+                match = re.search(r'\b\d+$', record)
+                employee['worked_out'] = int(match.group(0))
                 diff_modifier = 1
                 if employee['worked_out'] > employee['hours']:
                     diff_modifier = 2
@@ -198,24 +194,17 @@ with open(os.path.join(SCRIPT_DIR, 'data', 'hours_of'), 'r', encoding='utf-8') a
 # po_wdth = max(len(str(emval)) for emp in employee_list for emkey, emval in emp.items() if emkey == 'pay_out')
 # for employee in employee_list:
 #     print(
-#         '{0:<{fn_w}} {1:<{ln_w}}  {2:<{ps_w}}  {3:>{sl_w}}  {4:>{hr_w}}  {5:>{wo_w}}  {6:>{po_w}}'.format(
-#             employee['first_name'],
-#             employee['last_name'],
-#             employee['position'],
-#             employee['salary'],
-#             employee['hours'],
-#             employee['worked_out'],
-#             employee['pay_out'],
-#             fn_w=fn_wdth,
-#             ln_w=ln_wdth,
-#             ps_w=ps_wdth,
-#             sl_w=sl_wdth,
-#             hr_w=hr_wdth,
-#             wo_w=wo_wdth,
-#             po_w=po_wdth
+#         '{0} {1}  {2}  {3}  {4}  {5}  {6}'.format(
+#             employee['first_name'].ljust(fn_wdth),
+#             employee['last_name'].ljust(ln_wdth),
+#             employee['position'].ljust(ps_wdth),
+#             str(employee['salary']).rjust(sl_wdth),
+#             str(employee['hours']).rjust(hr_wdth),
+#             str(employee['worked_out']).rjust(wo_wdth),
+#             str(employee['pay_out']).rjust(po_wdth),
 #         )
 #     )
-print('*' * 70)
+# print('*' * 70)
 
 
 # Задание-3:
