@@ -43,7 +43,7 @@ print('*' * 70)
 
 from random import randint
 
-lst = [randint(-1000, 1000) for i in range(21)]
+lst = [randint(-1000, 1000) for _ in range(21)]
 new_lst = [x for x in lst if not x % 3 and x > 0 and x % 4]
 
 print('*' * 70)

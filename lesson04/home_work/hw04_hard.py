@@ -57,3 +57,27 @@ number = """
 # Программа получает на вход восемь пар чисел,
 # каждое число от 1 до 8 — координаты 8 ферзей.
 # Если ферзи не бьют друг друга, выведите слово NO, иначе выведите YES.
+
+board = [[0 for _ in range(8)] for _ in range(8)]
+
+check = True
+
+for line in board:
+    if sum(line) > 1:
+        check = False
+        break
+
+if check:
+    for line in zip(*board):
+    if sum(line) > 1:
+        check = False
+        break
+
+for diag in range(-6, 7):
+    summ = 0
+	for row, line in enumerate(board):
+		if 0 <= row + diag < len(line):
+			summ += line[row + diag]
+	if summ > 1:
+        check = False
+        break
