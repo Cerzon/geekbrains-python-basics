@@ -16,10 +16,9 @@ matrix = [[1, 0, 8],
 
 # Суть сложности hard: Решите задачу в одну строку
 
+# к сожалению, в примерах урока присутствует решение этой задачи
 matrix_rotate = list(map(list, zip(*matrix)))
 
-# к сожалению, в примерах урока присутствует решение этой задачи,
-# что совершенно дискредитирует уровень сложности hard
 
 # Задание-2:
 # Найдите наибольшее произведение пяти последовательных цифр в 1000-значном числе.
@@ -56,90 +55,38 @@ number = """
 # каждое число от 1 до 8 — координаты 8 ферзей.
 # Если ферзи не бьют друг друга, выведите слово NO, иначе выведите YES.
 
-side_sz = 8
-
 solutions = []
-qs = [0 for _ in range(side_sz)]
-for qs[0] in range(side_sz):
-    for qs[1] in range(side_sz):
+qs = [0 for _ in range(8)]
+for qs[0] in range(8):
+    for qs[1] in range(8):
         if qs[1] == qs[0] or abs(qs[1] - qs[0]) == 1:
             continue
-        for qs[2] in range(side_sz):
+        for qs[2] in range(8):
             if (qs[2] in qs[:2] or
-                abs(qs[2] - qs[0]) == 2 or
-                abs(qs[2] - qs[1]) == 1):
+                True in (abs(qs[2] - qs[i]) == 2 - i for i in range(2))):
                 continue
-            for qs[3] in range(side_sz):
+            for qs[3] in range(8):
                 if (qs[3] in qs[:3] or
-                    abs(qs[3] - qs[0]) == 3 or
-                    abs(qs[3] - qs[1]) == 2 or
-                    abs(qs[3] - qs[2]) == 1):
+                    True in (abs(qs[3] - qs[i]) == 3 - i for i in range(3))):
                     continue
-                for qs[4] in range(side_sz):
+                for qs[4] in range(8):
                     if (qs[4] in qs[:4] or
-                        abs(qs[4] - qs[0]) == 4 or
-                        abs(qs[4] - qs[1]) == 3 or
-                        abs(qs[4] - qs[2]) == 2 or
-                        abs(qs[4] - qs[3]) == 1):
+                        True in (abs(qs[4] - qs[i]) == 4 - i for i in range(4))):
                         continue
-                    for qs[5] in range(side_sz):
+                    for qs[5] in range(8):
                         if (qs[5] in qs[:5] or
-                            abs(qs[5] - qs[0]) == 5 or
-                            abs(qs[5] - qs[1]) == 4 or
-                            abs(qs[5] - qs[2]) == 3 or
-                            abs(qs[5] - qs[3]) == 2 or
-                            abs(qs[5] - qs[4]) == 1):
+                            True in (abs(qs[5] - qs[i]) == 5 - i for i in range(5))):
                             continue
-                        for qs[6] in range(side_sz):
+                        for qs[6] in range(8):
                             if (qs[6] in qs[:6] or
-                                abs(qs[6] - qs[0]) == 6 or
-                                abs(qs[6] - qs[1]) == 5 or
-                                abs(qs[6] - qs[2]) == 4 or
-                                abs(qs[6] - qs[3]) == 3 or
-                                abs(qs[6] - qs[4]) == 2 or
-                                abs(qs[6] - qs[5]) == 1):
+                                True in (abs(qs[6] - qs[i]) == 6 - i for i in range(6))):
                                 continue
-                            for qs[7] in range(side_sz):
-                                if (qs[7] in qs[:6] or
-                                    abs(qs[7] - qs[0]) == 7 or
-                                    abs(qs[7] - qs[1]) == 6 or
-                                    abs(qs[7] - qs[2]) == 5 or
-                                    abs(qs[7] - qs[3]) == 4 or
-                                    abs(qs[7] - qs[4]) == 3 or
-                                    abs(qs[7] - qs[5]) == 2 or
-                                    abs(qs[7] - qs[6]) == 1):
+                            for qs[7] in range(8):
+                                if (qs[7] in qs[:7] or
+                                    True in (abs(qs[7] - qs[i]) == 7 - i for i in range(7))):
                                     continue
 
-                                board = [[0 for _ in range(side_sz)] for _ in range(side_sz)]
-                                for row, line in enumerate(board):
-                                    line[qs[row]] = 1
-                                check = True
-
-                                for line in board:
-                                    if sum(line) > 1:
-                                        check = False
-                                        break
-
-                                if check:
-                                    for line in zip(*board):
-                                        if sum(line) > 1:
-                                            check = False
-                                            break
-
-                                if check:
-                                    for diag in range(-(side_sz - 2), side_sz - 1):
-                                        sumb = 0
-                                        sumf = 0
-                                        for row, line in enumerate(board):
-                                            if 0 <= row + diag < side_sz:
-                                                sumb += line[row + diag]
-                                                sumf += line[::-1][row + diag]
-                                        if sumb > 1 or sumf > 1:
-                                            check = False
-                                            break
-                                        
-                                if check:
-                                    solutions.append(qs[:])
+                                solutions.append(qs[:])
 
 if len(solutions) > 0:
     with open('queenset.txt', 'w') as queenset:
