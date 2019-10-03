@@ -94,3 +94,19 @@ print(re_match, len(re_match))
 # 2500-значное произвольное число.
 # Найдите и выведите самую длинную последовательность одинаковых цифр
 # в вышезаполненном файле.
+
+import os
+from random import randint
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+fname = os.path.join(SCRIPT_DIR, 'number.txt')
+
+with open(fname, 'w') as datafile:
+    for _ in range(2500):
+        datafile.write(str(randint(0, 9)))
+
+with open(fname, 'r') as datafile:
+    number = datafile.readline()
+
+re_match = re.findall(r'(0+|1+|2+|3+|4+|5+|6+|7+|8+|9+)', number)
+print(sorted(re_match, key=len, reverse=True)[0])

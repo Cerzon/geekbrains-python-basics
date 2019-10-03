@@ -16,7 +16,7 @@ matrix = [[1, 0, 8],
 
 # Суть сложности hard: Решите задачу в одну строку
 
-# к сожалению, в примерах урока присутствует решение этой задачи
+# к сожалению решение этой задачи было разобрано на уроке и есть в примерах
 matrix_rotate = list(map(list, zip(*matrix)))
 
 
@@ -45,6 +45,35 @@ number = """
 84580156166097919133875499200524063689912560717606
 05886116467109405077541002256983155200055935729725
 71636269561882670428252483600823257530420752963450"""
+
+# для начала избавимся от переносов строки, оставив только цифры
+number = ''.join(number.split('\n'))
+
+# встроенной функции произведения элементов списка нет, выкручиваемся
+from functools import reduce
+from operator import mul
+
+max_idx = 0
+max_mul = 0
+
+# вариант кода в комментарии делает почти то же самое, но страшнее и
+# выполняется в среднем на 100 нс дольше (проверял на 10к повторов);
+# не может же быть это только из-за "страшности"?
+
+# for idx, five_mul in ((i, reduce(mul, map(int, number[i:i + 5]), 1),)
+#                         for i in range(len(number) - 5)
+#                         if not '0' in number[i:i + 5]):
+
+for idx in range(len(number) - 5):
+    if not '0' in number[idx:idx + 5]:
+        five_mul = reduce(mul, map(int, number[idx:idx + 5]), 1)
+        if five_mul > max_mul:
+            max_mul = five_mul
+            max_idx = idx
+
+print('max_mul = ', max_mul)
+print('start index = ', max_idx)
+print('sequence = ', number[max_idx:max_idx + 5])
 
 
 # Задание-3 (Ферзи):
@@ -125,5 +154,4 @@ print('NO' if check else 'YES')
 
 # if len(solutions) > 0:
 #     with open('queenset.txt', 'w') as queenset:
-#         for solution in solutions:
-#             queenset.write('{}\n'.format(solution))
+#          queenset.write(('{}\n' * len(solutions)).format(*solutions))
