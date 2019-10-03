@@ -55,40 +55,75 @@ number = """
 # каждое число от 1 до 8 — координаты 8 ферзей.
 # Если ферзи не бьют друг друга, выведите слово NO, иначе выведите YES.
 
-solutions = []
-qs = [0 for _ in range(8)]
-for qs[0] in range(8):
-    for qs[1] in range(8):
-        if qs[1] == qs[0] or abs(qs[1] - qs[0]) == 1:
-            continue
-        for qs[2] in range(8):
-            if (qs[2] in qs[:2] or
-                True in (abs(qs[2] - qs[i]) == 2 - i for i in range(2))):
-                continue
-            for qs[3] in range(8):
-                if (qs[3] in qs[:3] or
-                    True in (abs(qs[3] - qs[i]) == 3 - i for i in range(3))):
-                    continue
-                for qs[4] in range(8):
-                    if (qs[4] in qs[:4] or
-                        True in (abs(qs[4] - qs[i]) == 4 - i for i in range(4))):
-                        continue
-                    for qs[5] in range(8):
-                        if (qs[5] in qs[:5] or
-                            True in (abs(qs[5] - qs[i]) == 5 - i for i in range(5))):
-                            continue
-                        for qs[6] in range(8):
-                            if (qs[6] in qs[:6] or
-                                True in (abs(qs[6] - qs[i]) == 6 - i for i in range(6))):
-                                continue
-                            for qs[7] in range(8):
-                                if (qs[7] in qs[:7] or
-                                    True in (abs(qs[7] - qs[i]) == 7 - i for i in range(7))):
-                                    continue
+# расстановка для проверки - 8 пар чисел
 
-                                solutions.append(qs[:])
+queen0 = (0, 1,)
+queen1 = (1, 3,)
+queen2 = (2, 5,)
+queen3 = (3, 7,)
+queen4 = (4, 2,)
+queen5 = (5, 0,)
+queen6 = (6, 6,)
+queen7 = (7, 4,)
 
-if len(solutions) > 0:
-    with open('queenset.txt', 'w') as queenset:
-        for solution in solutions:
-            queenset.write('{}\n'.format(solution))
+check = True
+
+# проверка прямых (небьющие друг друга ладьи)
+for line in zip(queen0, queen1, queen2, queen3, queen4, queen5, queen6, queen7):
+    for num in line:
+        if line.count(num) > 1:
+            check = False
+            break
+    if not check:
+        break
+
+# если проверка прямых пройдена, проверяем диагонали
+if check:
+    qs = dict([queen0, queen1, queen2, queen3, queen4, queen5, queen6, queen7])
+    for row in range(1, 8):
+        if True in (abs(qs[row] - qs[i]) == row - i for i in range(row)):
+            check = False
+            break
+
+print('NO' if check else 'YES')
+
+
+# поиск решений задачи с ферзями
+
+# solutions = []
+# qs = [0 for _ in range(8)]
+# for qs[0] in range(8):
+#     for qs[1] in range(8):
+#         if qs[1] == qs[0] or abs(qs[1] - qs[0]) == 1:
+#             continue
+#         for qs[2] in range(8):
+#             if (qs[2] in qs[:2] or
+#                 True in (abs(qs[2] - qs[i]) == 2 - i for i in range(2))):
+#                 continue
+#             for qs[3] in range(8):
+#                 if (qs[3] in qs[:3] or
+#                     True in (abs(qs[3] - qs[i]) == 3 - i for i in range(3))):
+#                     continue
+#                 for qs[4] in range(8):
+#                     if (qs[4] in qs[:4] or
+#                         True in (abs(qs[4] - qs[i]) == 4 - i for i in range(4))):
+#                         continue
+#                     for qs[5] in range(8):
+#                         if (qs[5] in qs[:5] or
+#                             True in (abs(qs[5] - qs[i]) == 5 - i for i in range(5))):
+#                             continue
+#                         for qs[6] in range(8):
+#                             if (qs[6] in qs[:6] or
+#                                 True in (abs(qs[6] - qs[i]) == 6 - i for i in range(6))):
+#                                 continue
+#                             for qs[7] in range(8):
+#                                 if (qs[7] in qs[:7] or
+#                                     True in (abs(qs[7] - qs[i]) == 7 - i for i in range(7))):
+#                                     continue
+
+#                                 solutions.append(qs[:])
+
+# if len(solutions) > 0:
+#     with open('queenset.txt', 'w') as queenset:
+#         for solution in solutions:
+#             queenset.write('{}\n'.format(solution))
