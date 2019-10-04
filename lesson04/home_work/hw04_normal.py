@@ -87,6 +87,32 @@ print('С помощью модуля регулярных выражений re
 re_match = re.findall(r'[a-z]{2}([A-Z]+)[A-Z]{2}', line_2)
 print(re_match, len(re_match))
 
+print('-' * 70)
+print('Без помощи модуля регулярных выражений re')
+
+uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+lc_chk = lambda x: x in lowercase
+uc_chk = lambda x: x in uppercase
+
+match_list = []
+idx = 2
+ml = 0
+
+while idx < len(line_2) - 2:
+    if (tuple(map(lc_chk, line_2[idx - 2:idx])) == (True, True,) and
+            tuple(map(uc_chk, line_2[idx:idx + 3])) == (True, True, True,)):
+        ml = 1
+        while idx + ml + 2 < len(line_2) and uc_chk(line_2[idx + ml + 2]):
+            ml += 1
+        match_list.append(line_2[idx:idx + ml])
+        idx += ml + 2
+    else:
+        idx += 1
+
+print(match_list, len(match_list))
+
+print('*' * 70)
+
 
 # Задание-3:
 # Напишите скрипт, заполняющий указанный файл (самостоятельно задайте имя файла)
