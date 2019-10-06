@@ -37,11 +37,10 @@ print(re_match, len(re_match))
 print('-' * 70)
 print('Без помощи модуля регулярных выражений re')
 
-lowercase = 'abcdefghijklmnopqrstuvwxyz'
 str_group = ''
 match_list = []
 for symb in line:
-    if symb in lowercase:
+    if symb.islower():
         str_group += symb
     elif str_group:
         match_list.append(str_group)
@@ -90,19 +89,14 @@ print(re_match, len(re_match))
 print('-' * 70)
 print('Без помощи модуля регулярных выражений re')
 
-uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-lc_chk = lambda x: x in lowercase
-uc_chk = lambda x: x in uppercase
-
 match_list = []
 idx = 2
 ml = 0
 
 while idx < len(line_2) - 2:
-    if (tuple(map(lc_chk, line_2[idx - 2:idx])) == (True, True,) and
-            tuple(map(uc_chk, line_2[idx:idx + 3])) == (True, True, True,)):
+    if line_2[idx - 2:idx].islower() and line_2[idx:idx + 3].isupper():
         ml = 1
-        while idx + ml + 2 < len(line_2) and uc_chk(line_2[idx + ml + 2]):
+        while idx + ml + 2 < len(line_2) and line_2[idx + ml + 2].isupper():
             ml += 1
         match_list.append(line_2[idx:idx + ml])
         idx += ml + 2
