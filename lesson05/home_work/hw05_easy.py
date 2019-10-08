@@ -17,12 +17,12 @@ def make_folder(fld_name):
     try:
         os.mkdir(fld_name)
     except FileExistsError:
-        print('Folder {} already exists'.format(fld_name))
+        print('Error. Folder [{}] already exists'.format(fld_name))
         return False
     except FileNotFoundError:
-        print('Parent folder {} does not exist'.format(os.path.dirname(fld_name)))
+        print('Error. Parent folder [{}] does not exist'.format(os.path.dirname(fld_name)))
         return False
-    print('Folder {} created'.format(fld_name))
+    print('Folder [{}] created'.format(fld_name))
     return True
 
 
@@ -33,15 +33,15 @@ def remove_folder(fld_name):
     try:
         os.rmdir(fld_name)
     except NotADirectoryError:
-        print('{} is not a folder'.format(fld_name))
+        print('Error. [{}] is not a folder'.format(fld_name))
         return False
     except FileNotFoundError:
-        print('Folder {} does not exist'.format(fld_name))
+        print('Error. Folder [{}] does not exist'.format(fld_name))
         return False
     except OSError:
-        print('Folder {} is not empty'.format(fld_name))
+        print('Error. Folder [{}] is not empty'.format(fld_name))
         return False
-    print('Folder {} deleted'.format(fld_name))
+    print('Folder [{}] deleted'.format(fld_name))
     return True
 
 
@@ -61,19 +61,26 @@ if __name__ == '__main__':
 # Задача-2:
 # Напишите скрипт, отображающий папки текущей директории.
 
-def list_folder(fld_name=os.curdir, folders_only=False):
+def list_folder(folders_only=False):
     """
-    Выводит содержимое папки с заданным именем.
     folders_only=True -- вывести только имена папок.
     """
-    if not os.path.isabs(fld_name):
-        fld_name = os.path.join(os.path.abspath(os.curdir), fld_name)
-    if os.path.isdir(fld_name) and os.listdir(fld_name):
-        for name in os.listdir(fld_name):
-            if os.path.isdir(os.path.join(fld_name, name)):
+    fldr_count = 0
+    file_count = 0
+    if os.listdir(os.curdir):
+        for name in os.listdir(os.curdir):
+            if os.path.isdir(name):
                 print('[{}]'.format(name))
+                fldr_count += 1
             elif not folders_only:
                 print(name)
+                file_count += 1
+    else:
+        print('-- empty --')
+    print('Total:', end=' ')
+    if not folders_only:
+        print('{} files,'.format(file_count), end=' ')
+    print('{} folders'.format(fldr_count))
 
 
 if __name__ == '__main__':
