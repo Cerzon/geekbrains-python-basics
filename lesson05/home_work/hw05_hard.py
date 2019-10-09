@@ -22,7 +22,7 @@ import os
 import sys
 import shutil
 
-print('sys.argv = ', sys.argv)
+# print('sys.argv = ', sys.argv)
 
 
 def print_help():
@@ -73,11 +73,48 @@ def change_dir():
 
 
 def copy_file():
-    pass
+    if not fso_name:
+        print("Необходимо указать имя файла вторым параметром")
+        return
+    if os.path.isabs(fso_name):
+        src_path = fso_name
+    else:
+        rel_parts = tuple(filter(None, os.path.split(fso_name)))
+        src_path = os.path.join(os.getcwd(), *rel_parts)
+    if os.path.isfile(src_path):
+        dst_name = 'copy_' + os.path.split(fso_name)[-1]
+        dst_path = os.path.join(os.path.dirname(src_path), dst_name)
+        shutil.copy(src_path, dst_path)
+        print('файл скопирован в {}'.format(dst_name))
+    else:
+        print('{} не является файлом'.format(fso_name))
 
 
 def remove_file():
-    pass
+    if not fso_name:
+        print("Необходимо указать имя файла вторым параметром")
+        return
+    if os.path.isabs(fso_name):
+        tgt_path = fso_name
+    else:
+        rel_parts = tuple(filter(None, os.path.split(fso_name)))
+        tgt_path = os.path.join(os.getcwd(), *rel_parts)
+    if os.path.isfile(tgt_path):
+        while True:
+            answer = input('Удалить файл {}? [<Y>es(<Д>a)/<N>o(<Н>ет)] '.format(fso_name))
+            if answer in 'YyДд':
+                break
+            elif answer in 'NnНн':
+                print('Удаление {} отменено'.format(fso_name))
+                return
+        try:
+            os.remove(tgt_path)
+        except PermissionError:
+            print('невозможно удалить {} - файл занят другим процессом'.format(fso_name))
+            return
+        print('файл {} успешно удалён'.format(fso_name))
+    else:
+        print('{} не является файлом'.format(fso_name))
 
 
 def print_dir():
