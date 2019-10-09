@@ -22,8 +22,13 @@ import hw05_easy
 
 
 def change_folder(fld_name):
+    if os.path.isabs(fld_name):
+        fld_path = fld_name
+    else:
+        rel_parts = tuple(filter(None, os.path.split(fld_name)))
+        fld_path = os.path.join(os.getcwd(), *rel_parts)
     try:
-        os.chdir(fld_name)
+        os.chdir(fld_path)
     except FileNotFoundError:
         print('Error. Folder [{}] does not exist'.format(fld_name))
         return False

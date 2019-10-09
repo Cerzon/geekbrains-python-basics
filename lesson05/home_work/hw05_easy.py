@@ -14,8 +14,13 @@ def make_folder(fld_name):
     """
     Создаёт в текущей папку с заданным именем, если такой папки ещё нет.
     """
+    if os.path.isabs(fld_name):
+        fld_path = fld_name
+    else:
+        rel_parts = tuple(filter(None, os.path.split(fld_name)))
+        fld_path = os.path.join(os.getcwd(), *rel_parts)
     try:
-        os.mkdir(fld_name)
+        os.mkdir(fld_path)
     except FileExistsError:
         print('Error. Folder [{}] already exists'.format(fld_name))
         return False
@@ -30,8 +35,13 @@ def remove_folder(fld_name):
     """
     Удаляет из текущей папку с заданным именем, если такая папка есть.
     """
+    if os.path.isabs(fld_name):
+        fld_path = fld_name
+    else:
+        rel_parts = tuple(filter(None, os.path.split(fld_name)))
+        fld_path = os.path.join(os.getcwd(), *rel_parts)
     try:
-        os.rmdir(fld_name)
+        os.rmdir(fld_path)
     except NotADirectoryError:
         print('Error. [{}] is not a folder'.format(fld_name))
         return False
