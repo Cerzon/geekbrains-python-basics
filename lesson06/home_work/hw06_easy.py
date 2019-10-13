@@ -28,7 +28,7 @@ class Triangle:
             raise ValueError('Минимум две из заданных точек совпадают')
         self._a, self._b, self._c = a, b, c
         if any(self.height(base) == 0 for base in ('ab', 'ac', 'bc')):
-            raise ValueError('Заданные точки образуют треугольник, вырожденный в линию')
+            raise ValueError('Заданные точки лежат на одной прямой')
 
     @property
     def _sides(self):
@@ -62,14 +62,24 @@ class Triangle:
 
 
 if __name__ == '__main__':
-    triag1 = Triangle((0, 10), (0, 0), (10, 0))
+    # triagline = Triangle((1, 2), (2, 4), (3, 6))
+    triag1 = Triangle((2, 3), (6, 6), (8, 0))
     print(triag1)
     print('Периметр =', triag1.perimeter)
     print('Площадь =', triag1.square)
     print('Высота из вершины c к стороне ab =', triag1.height('ab'))
     print('Высота из вершины b к стороне ac =', triag1.height('ac'))
     print('Высота из вершины a к стороне bc =', triag1.height('bc'))
-    # print('Длины сторон ab, ac, bc =', triag1._sides)
+    print('Длины сторон ab = {}, ac = {}, bc = {}'.format(*triag1._sides))
+    triag2 = Triangle((2, 3), (8, 5), (8, 0))
+    print(triag2)
+    print('Периметр =', triag2.perimeter)
+    print('Площадь =', triag2.square)
+    print('Высота из вершины c к стороне ab =', triag2.height('ab'))
+    print('Высота из вершины b к стороне ac =', triag2.height('ac'))
+    print('Высота из вершины a к стороне bc =', triag2.height('bc'))
+    print('Длины сторон ab = {}, ac = {}, bc = {}'.format(*triag2._sides))
+
 
 
 # Задача-2: Написать Класс "Равнобочная трапеция", заданной координатами 4-х точек.
@@ -86,6 +96,7 @@ class IsoscelesTrapezoid:
     def __init__(self, a, b, c, d):
         if not all(map(isflatpoint, (a, b, c, d,))):
             raise TypeError('Точка должна быть списком или кортежем координат x и y')
-        if any(map(lambda p: p[0] == p[1], zip((a, b, c, a, b, a,), (b, c, d, c, d, d,)))):
+        if any((a, b, c, d).count(p) > 1 for p in (a, b, c, d)):
             raise ValueError('Минимум две из заданных точек совпадают')
+        # Triangle(a, b, c)
         self._a, self._b, self._c, self._d = a, b, c, d
