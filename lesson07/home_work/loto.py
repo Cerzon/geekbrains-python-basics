@@ -57,3 +57,7 @@
 модуль random: http://docs.python.org/3/library/random.html
 
 """
+
+
+class LotoCard:
+   pass
