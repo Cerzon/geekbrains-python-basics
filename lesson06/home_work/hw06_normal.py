@@ -8,6 +8,9 @@
 # но больше математику не может преподавать никто другой.
 
 class Human:
+    """
+    Общий класс человеков
+    """
     def __init__(self, first_name, second_name, last_name):
         self.first_name = first_name
         self.second_name = second_name
@@ -21,7 +24,9 @@ class Human:
 
 
 class StudyClass:
-
+    """
+    Учебный класс
+    """
     def __init__(self, number, letter):
         self._number = number
         self._letter = letter
@@ -63,6 +68,8 @@ class StudyClass:
 
     def add_subject(self, subject, teacher):
         if isinstance(teacher, Teacher) and subject == teacher.subject:
+            if subject in self._subjects:
+                self.remove_subject(subject)
             self._subjects[subject] = teacher
             print('Педагог {} теперь ведёт предмет "{}" в классе {}'.format(
                 teacher, subject, self
@@ -94,14 +101,16 @@ class StudyClass:
 
 
 class Student(Human):
-
+    """
+    Ученик. Обычно слишком молод для создания семьи, поэтому не может быть родителем.
+    """
     def __init__(self, first_name, second_name, last_name, mother, father, study_class):
         super().__init__(first_name, second_name, last_name)
-        if isinstance(mother, Human):
+        if isinstance(mother, Human) and not isinstance(mother, Student):
             self._mother = mother
         else:
             self._mother = None
-        if isinstance(father, Human):
+        if isinstance(father, Human) and not isinstance(mother, Student):
             self._father = father
         else:
             self._father = None
@@ -148,7 +157,9 @@ class Student(Human):
 
 
 class Teacher(Human):
-
+    """
+    Педагог. Так же может быть родителем ученика.
+    """
     def __init__(self, first_name, second_name, last_name, subject):
         super().__init__(first_name, second_name, last_name)
         self.subject = subject
