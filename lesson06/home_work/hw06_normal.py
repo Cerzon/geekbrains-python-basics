@@ -110,7 +110,7 @@ class Student(Human):
             self._mother = mother
         else:
             self._mother = None
-        if isinstance(father, Human) and not isinstance(mother, Student):
+        if isinstance(father, Human) and not isinstance(father, Student):
             self._father = father
         else:
             self._father = None
