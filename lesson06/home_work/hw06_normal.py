@@ -104,7 +104,7 @@ class Student(Human):
     """
     Ученик. Обычно слишком молод для создания семьи, поэтому не может быть родителем.
     """
-    def __init__(self, first_name, second_name, last_name, mother, father, study_class):
+    def __init__(self, first_name, second_name, last_name, mother=None, father=None, study_class=None):
         super().__init__(first_name, second_name, last_name)
         if isinstance(mother, Human) and not isinstance(mother, Student):
             self._mother = mother
@@ -170,80 +170,125 @@ class Teacher(Human):
 
 if __name__ == '__main__':
 
-    # школа может побыть и словарем, хотя список тоже сгодился бы
+    # школа может побыть и словарем со списками, этого вполне достаточно,
+    # если школа всего одна
     school = {
-        '1A': StudyClass(1, 'А'),
-        '1B': StudyClass(1, 'Б'),
+        'study_classes': [
+            StudyClass(7, 'А'),
+            StudyClass(7, 'Б'),
+        ],
+        'students': [],
+        'teachers': [],
     }
 
     # проверяем, что классы созданы и вывод информации работает
-    for key, value in school.items():
-        print(key, value)
+    print('\n{:-^70}'.format(' инфо о созданных учебных классах '))
+    for study_class in school['study_classes']:
+        print(study_class)
 
-    # создадим пару учеников. увы, из-за лени горе-программиста, они сироты
-    # зато сразу зачислены в учебный класс
-    ivanov_ii = Student('Иван', 'Иванович', 'Иванов', None, None, school['1A'])
-    petrov_pp = Student('Петр', 'Петрович', 'Петров', None, None, school['1A'])
+    # примем в школу учеников и определим в учебный класс
+    school['students'].append(
+        Student('Иван', 'Иванович', 'Иванов', 
+            mother=Human('Алевтина', 'Сергеевна', 'Иванова'),
+            father=Human('Иван', 'Каземирович', 'Иванов'),
+            study_class=school['study_classes'][0])
+    )
+    school['students'].append(
+        Student('Петр', 'Петрович', 'Петров',
+            mother=Human('Изабелла', 'Юрьевна', 'Петрова'),
+            father=Human('Петр', 'Артурович', 'Петров'),
+            study_class=school['study_classes'][0])
+    )
+    school['students'].append(
+        Student('Фатых', 'Наилиевич', 'Королев',
+            mother=Human('Анжелика', 'Антоновна', 'Королева'),
+            study_class=school['study_classes'][1])
+    )
+    school['students'].append(
+        Student('Глеб', 'Егорович', 'Сироткин')
+    )
 
     # проверим, сработало ли зачисление учеников в классы
-    for key, value in school.items():
-        print(key, value.full_info())
+    print('\n{:-^70}'.format(' после зачисления учеников '))
+    for study_class in school['study_classes']:
+        print(study_class.full_info())
 
-    # убедимся, что ребята всё ещё сироты, но были бы отец и мать - тоже всё напечаталось бы
-    print(ivanov_ii.personal_info())
-    print(petrov_pp.personal_info())
+    # проверка вывода персональных данных
+    print('\n{:-^70}'.format(' персональные данные учеников '))
+    for student in school['students']:
+        print(student.personal_info())
     # выведем список учеников учебного класса, в котором эти ученики пока что находятся
-    print(str('{}\n' * len(school['1A'].student_list)).format(*school['1A'].student_list))
+    print('\n{:-^70}'.format(' список учеников класса '))
+    print(('{}\n' * len(school['study_classes'][0].student_list)).format(*school['study_classes'][0].student_list))
 
-    # переведём Петрова в другой класс
-    petrov_pp.study_class = school['1B']
+    # переведём ученика в другой класс
+    school['students'][1].study_class = school['study_classes'][1]
 
     # снова проверка обработки зачисления/перевода между классами
-    for key, value in school.items():
-        print(key, value.full_info())
+    print('{:-^70}'.format(' после перевода ученика '))
+    for study_class in school['study_classes']:
+        print(study_class.full_info())
 
     # проверяем, где учится каждый ученик
-    print(ivanov_ii.study_info())
-    print(petrov_pp.study_info())
+    print('\n{:-^70}'.format(' класс каждого ученика '))
+    for student in school['students']:
+        print(student.study_info())
 
-    # попробуем добавить в список учеников класса одного из ребят,
-    # и возникает ошибочка - ученик не выписан из предыдущего класса
-    school['1B'].add_student(ivanov_ii)
+    print('\n{:-^70}'.format(' перевод ученика через списки класса '))
+    # попробуем добавить в список учеников класса одного из ребят
+    school['study_classes'][0].add_student(school['students'][3])
+    # и другого; и если он уже учится в другом классе, то возникает
+    # ошибочка - ученик не выписан из предыдущего класса
+    school['study_classes'][1].add_student(school['students'][0])
     # делаем всё по правилам - выписываем из одного, вписываем в другой
-    school['1A'].remove_student(ivanov_ii)
-    school['1B'].add_student(ivanov_ii)
+    school['study_classes'][0].remove_student(school['students'][0])
+    school['study_classes'][1].add_student(school['students'][0])
 
     # снова статистика по классам
-    for key, value in school.items():
-        print(key, value.full_info())
+    print('\n{:-^70}'.format(' опять после переводов учеников '))
+    for study_class in school['study_classes']:
+        print(study_class.full_info())
 
     # и проверка класса приписки
-    print(ivanov_ii.study_info())
-    print(petrov_pp.study_info())
+    print('\n{:-^70}'.format(' и снова класс каждого ученика '))
+    for student in school['students']:
+        print(student.study_info())
 
     # пришло время найма преподавателей
-    sergeev_ss = Teacher('Сергей', 'Сергеевич', 'Сергеев', 'Математика')
-    school['1B'].add_subject('Математика', sergeev_ss)
+    school['teachers'].append(
+        Teacher('Сергей', 'Сергеевич', 'Сергеев', 'Математика')
+    )
+    school['teachers'].append(
+        Teacher('Герман', 'Радиевич', 'Золото', 'Химия')
+    )
+    school['teachers'].append(
+        Teacher('Апполинарий', 'Гераклиевич', 'Лежебоков', 'Физкультура')
+    )
+    school['teachers'].append(
+        Teacher('Коши', 'Деламберович', 'Ландау', 'Математика')
+    )
 
-    # проверим, каким же предметам обучают ученика Петрова
-    petrov_pp.study_class.print_subject_list()
+    print('\n{:-^70}'.format(' назначения преподавателей '))
+    school['study_classes'][1].add_subject('Математика', school['teachers'][0])
+    school['study_classes'][1].add_subject('Биология', school['teachers'][1])
+    school['study_classes'][1].add_subject('Физкультура', school['teachers'][2])
+    school['study_classes'][1].add_subject('Математика', school['teachers'][3])
+
+    # проверим, каким же предметам обучают ученика
+    print('\n{:-^70}'.format(' список предметов ученика '))
+    school['students'][1].study_class.print_subject_list()
 
     # полный перечень преподавателей конкретного класса, хотя их там и немного
-    for teacher in school['1B'].subject_list.values():
+    print('\n{:-^70}'.format(' перечень преподавателей класса '))
+    for teacher in school['study_classes'][1].subject_list.values():
         print(teacher.full_info())
 
-    # учебный год как-будто бы прошёл, класс увеличил цифру и...
-    school['1B'].level_up()
-    print(school['1B'].full_info())
-
-    # ... в новом году ожидаем новые предметы, а пока они не назначены
-    petrov_pp.study_class.print_subject_list()
-
-    # в школу пришёл парнишка из Греции, а в какой класс его определить - не разобрались
-    kpp = Student('Палейвктос', 'Панайотович', 'Калайдопола', None, None, None)
-
-    # поэтому парень временно Без Определенного Учебного Класса
-    print(kpp.study_info())
+    # учебный год как-будто бы прошёл, класс увеличил цифру и ждёт
+    # нового расписания предметов
+    print('\n{:-^70}'.format(' типа смена учебного года '))
+    school['study_classes'][1].level_up()
+    print(school['study_classes'][1].full_info())
+    school['study_classes'][1].print_subject_list()
 
 # Выбранная и заполненная данными структура должна решать следующие задачи:
 # 1. Получить полный список всех классов школы
