@@ -58,3 +58,88 @@
 
 """
 
+from random import randint
+
+
+barrels_amount = 90
+
+
+class LotoCard:
+    """
+    Карточка лото с числами
+    """
+    def __init__(self, owner_name):
+        lst = []
+        for barrel, remain in BarrelsBag(barrels_amount):
+            lst.append(barrel)
+            if barrels_amount - remain == 15:
+                break
+        row1, row2, row3 = sorted(lst[::3]), sorted(lst[1::3]), sorted(lst[2::3])
+        for _ in range(4):
+            row1.insert(randint(0, len(row1)), ' ')
+            row2.insert(randint(0, len(row2)), ' ')
+            row3.insert(randint(0, len(row3)), ' ')
+        self.card = row1 + row2 + row3
+        self.template = None
+        self.name = ' Карточка {} '.format(owner_name)
+
+    def __str__(self):
+        if not self.template:
+            self.template = '{:-^28}\n' + ('{:>3}' * 9 + ' \n') * 3 + '-' * 28
+        return self.template.format(self.name, *self.card)
+
+    def check_number(self, number):
+        return number in self.card
+
+    def stroke_number(self, number):
+        self.card[self.card.index(number)] = '-'
+
+    def winner(self):
+        return self.card.count('-') == 15
+
+
+class BarrelsBag:
+    """
+    Мешок с заказным количеством бочонков
+    """
+    def __init__(self, amount):
+        self.barrels = list(range(1, amount + 1))
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        remain = len(self.barrels)
+        if remain == 0:
+            raise StopIteration
+        remain -= 1
+        return self.barrels.pop(randint(0, remain)), remain
+
+
+gamer_card = LotoCard('игрока')
+pc_card = LotoCard('компьютера')
+
+for barrel, remain in BarrelsBag(barrels_amount):
+    print('\nВыпал бочонок: {} (осталось {})'.format(barrel, remain))
+    print(gamer_card)
+    print(pc_card)
+    answer = input('Зачеркнуть номер? [y/n] ')
+    # проверка ответа мутировала сперва из-за переключения раскладки,
+    # потом из-за лени и желания играть одной рукой на доп.клавиатуре
+    if answer and answer.lower() in 'yн0':
+        if gamer_card.check_number(barrel):
+            gamer_card.stroke_number(barrel)
+        else:
+            print('\nВ вашей карточке нет такого номера. Вы проиграли.\n')
+            break
+    elif gamer_card.check_number(barrel):
+        print('\nСлепота куриная! Вы проиграли.\n')
+        break
+    if gamer_card.winner():
+        print('\nПоздравляю! Вы выиграли!\n')
+        break
+    if pc_card.check_number(barrel):
+        pc_card.stroke_number(barrel)
+    if pc_card.winner():
+        print('\nКомпьютер выиграл.\n')
+        break
