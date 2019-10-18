@@ -23,6 +23,76 @@ class Human:
         return '{} {} {}'.format(self.last_name, self.first_name, self.second_name)
 
 
+class School:
+    """
+    Объект, представляющий школу, организующую учебные классы,
+    принимающую и выпускающую учеников, нанимающую педагогов
+    """
+    def __init__(self, grade, name):
+        self.grade = grade
+        self.name = name
+        self._students = set()
+        self._study_classes = set()
+        self._teachers = set()
+
+    def __str__(self):
+        return '{} {}'.format(self.name, self.grade)
+
+    def accept_student(self, student):
+        if isinstance(student, Student):
+            if not student in self._students:
+                self._students.add(student)
+            else:
+                print('Ученик {} уже зачислен в школу'.format(student))
+
+    def release_student(self, student, reason):
+        if student in self._students:
+            self._students.remove(student)
+            print('{} больше не является учеником школы - {}'.format(student, reason))
+        elif isinstance(student, Student):
+            print('Ученик {} не числится в школе'.format(student))
+
+    def add_study_class(self, study_class):
+        if isinstance(study_class, StudyClass):
+            if not study_class in self._study_classes:
+                self._study_classes.add(study_class)
+            else:
+                print('Учебный класс {} уже организован'.format(study_class))
+
+    def dismiss_study_class(self, study_class):
+        if study_class in self._study_classes:
+            self._study_classes.remove(study_class)
+            print('Учебный класс {} расформирован'.format(study_class))
+        elif isinstance(study_class, StudyClass):
+            print('Учебный класс {} отсутствует в школе или уже расформирован'.format(study_class))
+
+    def hire_teacher(self, teacher):
+        if isinstance(teacher, Teacher):
+            if not teacher in self._teachers:
+                self._teachers.add(teacher)
+            else:
+                print('{} уже нанят школой'.format(teacher.full_info()))
+
+    def fire_teacher(self, teacher, reason):
+        if teacher in self._teachers:
+            self._teachers.remove(teacher)
+            print('{} уволен из школы {}'.format(teacher.full_info(), reason))
+        elif isinstance(teacher, Teacher):
+            print('Чтобы уволить кого-нибудь ненужного, надо сперва нанять кого-нибудь ненужного, а у нас денег нет!')
+
+    @property
+    def student_list(self):
+        return dict(('{}'.format(stdnt), stdnt,) for stdnt in self._students)
+
+    @property
+    def study_class_list(self):
+        return dict(('{}'.format(stcl), stcl,) for stcl in self._study_classes)
+
+    @property
+    def teacher_list(self):
+        return dict(('{}'.format(tchr), tchr,) for tchr in self._teachers)
+
+
 class StudyClass:
     """
     Учебный класс
@@ -34,7 +104,7 @@ class StudyClass:
         self._subjects = dict()
     
     def __str__(self):
-        return '{} "{}"'.format(self._number, self._letter)
+        return '{}{}'.format(self._number, self._letter)
 
     def full_info(self):
         amount_end = ''
@@ -170,125 +240,118 @@ class Teacher(Human):
 
 if __name__ == '__main__':
 
-    # школа может побыть и словарем со списками, этого вполне достаточно,
-    # если школа всего одна
-    school = {
-        'study_classes': [
-            StudyClass(7, 'А'),
-            StudyClass(7, 'Б'),
-        ],
-        'students': [],
-        'teachers': [],
-    }
+    school = School('High school', 'Lincoln')
+    school.add_study_class(StudyClass(9, 'A'))
+    school.add_study_class(StudyClass(9, 'B'))
 
     # проверяем, что классы созданы и вывод информации работает
     print('\n{:-^70}'.format(' инфо о созданных учебных классах '))
-    for study_class in school['study_classes']:
+    for study_class in school.study_class_list.values():
         print(study_class)
 
     # примем в школу учеников и определим в учебный класс
-    school['students'].append(
+    school.accept_student(
         Student('Иван', 'Иванович', 'Иванов', 
             mother=Human('Алевтина', 'Сергеевна', 'Иванова'),
             father=Human('Иван', 'Каземирович', 'Иванов'),
-            study_class=school['study_classes'][0])
+            study_class=school.study_class_list['9A'])
     )
-    school['students'].append(
+    school.accept_student(
         Student('Петр', 'Петрович', 'Петров',
             mother=Human('Изабелла', 'Юрьевна', 'Петрова'),
             father=Human('Петр', 'Артурович', 'Петров'),
-            study_class=school['study_classes'][0])
+            study_class=school.study_class_list['9A'])
     )
-    school['students'].append(
+    school.accept_student(
         Student('Фатых', 'Наилиевич', 'Королев',
             mother=Human('Анжелика', 'Антоновна', 'Королева'),
-            study_class=school['study_classes'][1])
+            study_class=school.study_class_list['9B'])
     )
-    school['students'].append(
+    school.accept_student(
         Student('Глеб', 'Егорович', 'Сироткин')
     )
 
     # проверим, сработало ли зачисление учеников в классы
     print('\n{:-^70}'.format(' после зачисления учеников '))
-    for study_class in school['study_classes']:
+    for study_class in school.study_class_list.values():
         print(study_class.full_info())
 
     # проверка вывода персональных данных
     print('\n{:-^70}'.format(' персональные данные учеников '))
-    for student in school['students']:
+    for student in school.student_list.values():
         print(student.personal_info())
     # выведем список учеников учебного класса, в котором эти ученики пока что находятся
     print('\n{:-^70}'.format(' список учеников класса '))
-    print(('{}\n' * len(school['study_classes'][0].student_list)).format(*school['study_classes'][0].student_list))
+    print(('{}\n' * len(school.study_class_list['9A'].student_list)).format(*school.study_class_list['9A'].student_list))
 
     # переведём ученика в другой класс
-    school['students'][1].study_class = school['study_classes'][1]
+    school.student_list['Иванов И.И.'].study_class = school.study_class_list['9B']
 
     # снова проверка обработки зачисления/перевода между классами
     print('{:-^70}'.format(' после перевода ученика '))
-    for study_class in school['study_classes']:
+    for study_class in school.study_class_list.values():
         print(study_class.full_info())
 
     # проверяем, где учится каждый ученик
     print('\n{:-^70}'.format(' класс каждого ученика '))
-    for student in school['students']:
+    for student in school.student_list.values():
         print(student.study_info())
 
     print('\n{:-^70}'.format(' перевод ученика через списки класса '))
     # попробуем добавить в список учеников класса одного из ребят
-    school['study_classes'][0].add_student(school['students'][3])
+    school.study_class_list['9A'].add_student(school.student_list['Сироткин Г.Е.'])
     # и другого; и если он уже учится в другом классе, то возникает
     # ошибочка - ученик не выписан из предыдущего класса
-    school['study_classes'][1].add_student(school['students'][0])
+    school.study_class_list['9B'].add_student(school.student_list['Петров П.П.'])
     # делаем всё по правилам - выписываем из одного, вписываем в другой
-    school['study_classes'][0].remove_student(school['students'][0])
-    school['study_classes'][1].add_student(school['students'][0])
+    school.study_class_list['9A'].remove_student(school.student_list['Петров П.П.'])
+    school.study_class_list['9B'].add_student(school.student_list['Петров П.П.'])
 
     # снова статистика по классам
     print('\n{:-^70}'.format(' опять после переводов учеников '))
-    for study_class in school['study_classes']:
+    for study_class in school.study_class_list.values():
         print(study_class.full_info())
 
     # и проверка класса приписки
     print('\n{:-^70}'.format(' и снова класс каждого ученика '))
-    for student in school['students']:
+    for student in school.student_list.values():
         print(student.study_info())
 
     # пришло время найма преподавателей
-    school['teachers'].append(
+    school.hire_teacher(
         Teacher('Сергей', 'Сергеевич', 'Сергеев', 'Математика')
     )
-    school['teachers'].append(
+    school.hire_teacher(
         Teacher('Герман', 'Радиевич', 'Золото', 'Химия')
     )
-    school['teachers'].append(
+    school.hire_teacher(
         Teacher('Апполинарий', 'Гераклиевич', 'Лежебоков', 'Физкультура')
     )
-    school['teachers'].append(
+    school.hire_teacher(
         Teacher('Коши', 'Деламберович', 'Ландау', 'Математика')
     )
 
     print('\n{:-^70}'.format(' назначения преподавателей '))
-    school['study_classes'][1].add_subject('Математика', school['teachers'][0])
-    school['study_classes'][1].add_subject('Биология', school['teachers'][1])
-    school['study_classes'][1].add_subject('Физкультура', school['teachers'][2])
-    school['study_classes'][1].add_subject('Математика', school['teachers'][3])
+    school.study_class_list['9B'].add_subject('Математика', school.teacher_list['Сергеев С.С.'])
+    school.study_class_list['9B'].add_subject('Биология', school.teacher_list['Золото Г.Р.'])
+    school.study_class_list['9B'].add_subject('Физкультура', school.teacher_list['Лежебоков А.Г.'])
+    school.study_class_list['9B'].add_subject('Математика', school.teacher_list['Ландау К.Д.'])
 
     # проверим, каким же предметам обучают ученика
     print('\n{:-^70}'.format(' список предметов ученика '))
-    school['students'][1].study_class.print_subject_list()
+    school.student_list['Петров П.П.'].study_class.print_subject_list()
 
     # полный перечень преподавателей конкретного класса, хотя их там и немного
     print('\n{:-^70}'.format(' перечень преподавателей класса '))
-    for teacher in school['study_classes'][1].subject_list.values():
+    for teacher in school.study_class_list['9B'].subject_list.values():
         print(teacher.full_info())
 
     # учебный год как-будто бы прошёл, класс увеличил цифру и ждёт
     # нового расписания предметов
     print('\n{:-^70}'.format(' типа смена учебного года '))
-    school['study_classes'][1].level_up()
-    print(school['study_classes'][1].full_info())
-    school['study_classes'][1].print_subject_list()
+    school.study_class_list['9B'].level_up()
+    print(school.study_class_list['10B'].full_info())
+    school.study_class_list['10B'].print_subject_list()
 
 # Выбранная и заполненная данными структура должна решать следующие задачи:
 # 1. Получить полный список всех классов школы
