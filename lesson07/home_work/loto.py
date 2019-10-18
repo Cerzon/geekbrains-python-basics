@@ -61,32 +61,43 @@
 from random import randint
 
 
-barrels_amount = 90
+BARRELS_AMOUNT = 90
+NUMS_PER_CARD = 15
+ROWS_PER_CARD = 3
+CELLS_PER_ROW = 9
 
 
 class LotoCard:
     """
     Карточка лото с числами
     """
-    def __init__(self, owner_name):
+    def __init__(self, player):
         lst = []
-        for barrel, remain in BarrelsBag(barrels_amount):
+        for barrel, remain in BarrelsBag(BARRELS_AMOUNT):
             lst.append(barrel)
-            if barrels_amount - remain == 15:
+            if BARRELS_AMOUNT - remain == NUMS_PER_CARD:
                 break
-        row1, row2, row3 = sorted(lst[::3]), sorted(lst[1::3]), sorted(lst[2::3])
-        for _ in range(4):
-            row1.insert(randint(0, len(row1)), ' ')
-            row2.insert(randint(0, len(row2)), ' ')
-            row3.insert(randint(0, len(row3)), ' ')
-        self.card = row1 + row2 + row3
+        rows = []
+        for i in range(ROWS_PER_CARD):
+            rows.append(sorted(lst[i::ROWS_PER_CARD]))
+        for _ in range(CELLS_PER_ROW - NUMS_PER_CARD // ROWS_PER_CARD):
+            for i in range(ROWS_PER_CARD):
+                rows[i].insert(randint(0, len(rows[i])), ' ')
+        self.card = []
+        for i in range(ROWS_PER_CARD):
+            self.card += rows[i]
         self.template = None
-        self.name = ' Карточка {} '.format(owner_name)
+        self.player = player
 
     def __str__(self):
         if not self.template:
-            self.template = '{:-^28}\n' + ('{:>3}' * 9 + ' \n') * 3 + '-' * 28
-        return self.template.format(self.name, *self.card)
+            cell_len = len(str(BARRELS_AMOUNT)) + 1
+            card_header = '{:-^' + str(cell_len * CELLS_PER_ROW + 1) + '}\n'
+            card_header = card_header.format(' Каторчка ' + self.player + ' ')
+            row_body = ('{:>' + str(cell_len) + '}') * CELLS_PER_ROW + '\n'
+            card_footer = '-' * (cell_len * CELLS_PER_ROW + 1)
+            self.template = card_header + row_body * ROWS_PER_CARD + card_footer
+        return self.template.format(*self.card)
 
     def check_number(self, number):
         return number in self.card
@@ -95,7 +106,7 @@ class LotoCard:
         self.card[self.card.index(number)] = '-'
 
     def winner(self):
-        return self.card.count('-') == 15
+        return self.card.count('-') == NUMS_PER_CARD
 
 
 class BarrelsBag:
@@ -116,30 +127,45 @@ class BarrelsBag:
         return self.barrels.pop(randint(0, remain)), remain
 
 
-gamer_card = LotoCard('игрока')
-pc_card = LotoCard('компьютера')
+class LotoGame:
+    def __init__(self, gamer_card, pc_card, barrels_bag):
+        self._gamer_card = gamer_card
+        self._pc_card = pc_card
+        self._barrels_bag = barrels_bag
 
-for barrel, remain in BarrelsBag(barrels_amount):
-    print('\nВыпал бочонок: {} (осталось {})'.format(barrel, remain))
-    print(gamer_card)
-    print(pc_card)
-    answer = input('Зачеркнуть номер? [y/n] ')
-    # проверка ответа мутировала сперва из-за переключения раскладки,
-    # потом из-за лени и желания играть одной рукой на доп.клавиатуре
-    if answer and answer.lower() in 'yн0':
-        if gamer_card.check_number(barrel):
-            gamer_card.stroke_number(barrel)
-        else:
-            print('\nВ вашей карточке нет такого номера. Вы проиграли.\n')
-            break
-    elif gamer_card.check_number(barrel):
-        print('\nСлепота куриная! Вы проиграли.\n')
-        break
-    if gamer_card.winner():
-        print('\nПоздравляю! Вы выиграли!\n')
-        break
-    if pc_card.check_number(barrel):
-        pc_card.stroke_number(barrel)
-    if pc_card.winner():
-        print('\nКомпьютер выиграл.\n')
-        break
+    def start_game(self):
+        for barrel, remain in self._barrels_bag:
+            print('\nВыпал бочонок: {} (осталось {})'.format(barrel, remain))
+            print(self._gamer_card)
+            print(self._pc_card)
+            answer = input('Зачеркнуть номер? [y/n] ')
+            # проверка ответа мутировала сперва из-за переключения раскладки,
+            # потом из-за лени и желания играть одной рукой на доп.клавиатуре
+            if answer and answer.lower() in 'yн0':
+                if self._gamer_card.check_number(barrel):
+                    self._gamer_card.stroke_number(barrel)
+                else:
+                    print('\nВ вашей карточке нет такого номера. Вы проиграли.\n')
+                    break
+            elif self._gamer_card.check_number(barrel):
+                print('\nСлепота куриная! Вы проиграли.\n')
+                break
+            if self._gamer_card.winner():
+                print('\nПобеда {}.\n'.format(self._gamer_card.player))
+                break
+            if self._pc_card.check_number(barrel):
+                self._pc_card.stroke_number(barrel)
+            if self._pc_card.winner():
+                print('\nПобеда {}.\n'.format(self._pc_card.player))
+                break
+
+
+if __name__ == '__main__':
+
+    loto_game = LotoGame(
+        LotoCard('игрока'),
+        LotoCard('компьютера'),
+        BarrelsBag(BARRELS_AMOUNT)
+    )
+
+    loto_game.start_game()
