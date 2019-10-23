@@ -123,3 +123,65 @@ OpenWeatherMap — онлайн-сервис, который предостав�
 
 """
 
+from urllib import request
+import os
+import gzip
+import json
+import datetime
+import sqlite3
+
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+SERVER_API = 'http://api.openweathermap.org/data/2.5/'
+
+
+class WeatherPoint:
+    def __init__(self, point_dict):
+        for key, value in point_dict.items():
+            setattr(self, key, value)
+
+    def __str__(self):
+        return '{}, {} (coord {})'.format(self.name, self.country, self.coord)
+
+
+class WeatherRequest:
+    def __init__(self):
+        city_list = os.path.join(SCRIPT_DIR, 'city_list.gz')
+        if not os.path.isfile(city_list):
+            response = request.urlopen('http://bulk.openweathermap.org/sample/city.list.json.gz')
+            with open(city_list, 'wb') as arc_file:
+                arc_file.write(response.read())
+        with gzip.open(city_list, 'rt', encoding='utf-8') as arc_file:
+            point_list = json.load(arc_file)
+        self._wplist = dict()
+        for point in point_list:
+            country = point.get('country') or 'N/A'
+            if not country in self._wplist:
+                self._wplist[country] = []
+            self._wplist[country].append(WeatherPoint(point))
+        self._choosen = []
+        # можно было бы прилепить ещё чтение каких-нибудь сохраненных настроек выбора городов
+
+    def choose_dialog(self):
+        country_tpl = ('{:<7}' * 10 + '\n') * (len(self._wplist) // 10) + '{:<7}' * (len(self._wplist) % 10)
+        while True:
+            print('=' * 70)
+            print('Обозначения стран')
+            print('-' * 70)
+            print(country_tpl.format(*sorted(self._wplist.keys())))
+            print('~' * 70)
+            answer = input('Введите обозначение страны: ').upper()
+            if answer in self._wplist:
+                pass
+            else:
+                answer = input('Завершить выбор? [y/n]').lower()
+                if answer == 'y':
+                    break
+
+    def add_wpoint(self, wpoint):
+        # для диалогового режима не особо нужно, но для добавления при использовании класса из скрипта сгодится
+        self._choosen.append(wpoint)
+
+
+wr = WeatherRequest()
+wr.choose_dialog()
