@@ -124,6 +124,7 @@ OpenWeatherMap — онлайн-сервис, который предостав�
 """
 
 from urllib import request
+from urllib.error import HTTPError
 import os
 import gzip
 import json
@@ -141,16 +142,62 @@ class WeatherPoint:
             setattr(self, key, value)
 
     def __str__(self):
-        return '{}, {} (coord {})'.format(self.name, self.country, self.coord)
+        return self.name
+
+    def __len__(self):
+        return len(self.name)
+
+    def __lt__(self, other):
+        return self.name < other.name
+
+    def __le__(self, other):
+        return self.name <= other.name
+
+    def __gt__(self, other):
+        return self.name > other.name
+
+    def __ge__(self, other):
+        return self.name >= other.name
+
+    def __eq__(self, other):
+        return self.name == other.name
+
+    def __ne__(self, other):
+        return self.name != other.name
 
 
 class WeatherRequest:
-    def __init__(self):
+    def __init__(self, point_list=None):
+        self._choosen_wp = point_list
+
+    def add_wpoint(self, wpoint):
+        if self._choosen_wp is None:
+            self._choosen_wp = []
+        if not wpoint in self._choosen_wp:
+            self._choosen_wp.append(wpoint)
+
+    def print_choosen_wp(self):
+        if self._choosen_wp is None:
+            print('-- empty --')
+        else:
+            for wpoint in self._choosen_wp:
+                print(wpoint, wpoint.coord)
+
+
+class UserChoiceDialog:
+    """
+    Диалог выбора и добавления точек для запроса погоды.
+    wr - экземпляр WeaterRequest, в который будут добавлятся точки.
+    """
+    def __init__(self, wr):
         city_list = os.path.join(SCRIPT_DIR, 'city_list.gz')
         if not os.path.isfile(city_list):
             response = request.urlopen('http://bulk.openweathermap.org/sample/city.list.json.gz')
-            with open(city_list, 'wb') as arc_file:
-                arc_file.write(response.read())
+            if response.status == 200:
+                with open(city_list, 'wb') as arc_file:
+                    arc_file.write(response.read())
+            else:
+                raise HTTPError(response.url, response.status, response.msg, response.getheaders(),)
         with gzip.open(city_list, 'rt', encoding='utf-8') as arc_file:
             point_list = json.load(arc_file)
         self._wplist = dict()
@@ -159,29 +206,53 @@ class WeatherRequest:
             if not country in self._wplist:
                 self._wplist[country] = []
             self._wplist[country].append(WeatherPoint(point))
-        self._choosen = []
-        # можно было бы прилепить ещё чтение каких-нибудь сохраненных настроек выбора городов
+        self._wr = wr
 
-    def choose_dialog(self):
-        country_tpl = ('{:<7}' * 10 + '\n') * (len(self._wplist) // 10) + '{:<7}' * (len(self._wplist) % 10)
+    def start(self):
+        country_tpl = ('{:<8}' * 10 + '\n') * (len(self._wplist) // 10) + '{:<8}' * (len(self._wplist) % 10)
         while True:
-            print('=' * 70)
+            print('=' * 80)
             print('Обозначения стран')
-            print('-' * 70)
+            print('-' * 80)
             print(country_tpl.format(*sorted(self._wplist.keys())))
-            print('~' * 70)
+            print('~' * 80)
             answer = input('Введите обозначение страны: ').upper()
             if answer in self._wplist:
-                pass
-            else:
-                answer = input('Завершить выбор? [y/n]').lower()
-                if answer == 'y':
-                    break
+                ckey = answer
+                self._wplist[ckey].sort()
+                name_wd = max(map(len, self._wplist[ckey])) + 2
+                enum_wd = len(str(len(self._wplist[ckey])))
+                columns = 80 // (enum_wd + name_wd + 2)
+                while True:
+                    print('=' * 80)
+                    print('Список пунктов')
+                    print('-' * 80)
+                    endchar = ''
+                    for idx, point in enumerate(self._wplist[ckey], 1):
+                        if idx % columns == 0:
+                            endchar = '\n'
+                        else:
+                            endchar = ''
+                        print('{:>{ew}}. {:<{nw}}'.format(idx, point.name, ew=enum_wd, nw=name_wd), end=endchar)
+                    if endchar == '':
+                        print('\n')
+                    print('~' * 80)
+                    answer = input('Введите через запятую номера добавляемых в запрос пунктов: ')
+                    if answer:
+                        answer = tuple(filter(lambda x: x.strip().isnumeric(), answer.split(',')))
+                        answer = tuple(x - 1 for x in map(int, (x.strip() for x in answer)))
+                        for idx in answer:
+                            if idx < len(self._wplist[ckey]):
+                                self._wr.add_wpoint(self._wplist[ckey][idx])
+                    answer = input('Завершить выбор пунктов в {}? [y/n] '.format(ckey)).lower()
+                    if answer == 'y':
+                        break
+            answer = input('Завершить выбор? [y/n] ').lower()
+            if answer == 'y':
+                break
 
-    def add_wpoint(self, wpoint):
-        # для диалогового режима не особо нужно, но для добавления при использовании класса из скрипта сгодится
-        self._choosen.append(wpoint)
 
-
-wr = WeatherRequest()
-wr.choose_dialog()
+wreq = WeatherRequest()
+dialog = UserChoiceDialog(wreq)
+dialog.start()
+wreq.print_choosen_wp()
