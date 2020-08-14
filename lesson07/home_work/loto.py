@@ -80,7 +80,7 @@ class LotoCard:
         self.card = []
         for i in range(ROWS_PER_CARD):
             row = sorted(lst[i::ROWS_PER_CARD])
-            for _ in range(CELLS_PER_ROW - NUMS_PER_CARD // ROWS_PER_CARD):
+            for _ in range(CELLS_PER_ROW - len(row)):
                 row.insert(randint(0, len(row)), ' ')
             self.card += row
         self.template = None
