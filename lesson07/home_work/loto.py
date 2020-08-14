@@ -77,15 +77,15 @@ class LotoCard:
             lst.append(barrel)
             if BARRELS_AMOUNT - remain == NUMS_PER_CARD:
                 break
-        rows = []
-        for i in range(ROWS_PER_CARD):
-            rows.append(sorted(lst[i::ROWS_PER_CARD]))
-        for _ in range(CELLS_PER_ROW - NUMS_PER_CARD // ROWS_PER_CARD):
-            for i in range(ROWS_PER_CARD):
-                rows[i].insert(randint(0, len(rows[i])), ' ')
+        # rows = []
         self.card = []
         for i in range(ROWS_PER_CARD):
-            self.card += rows[i]
+            row = sorted(lst[i::ROWS_PER_CARD])
+            for _ in range(CELLS_PER_ROW - NUMS_PER_CARD // ROWS_PER_CARD):
+            # for i in range(ROWS_PER_CARD):
+                row.insert(randint(0, len(row)), ' ')
+        # for i in range(ROWS_PER_CARD):
+            self.card += row
         self.template = None
         self.player = player
 
