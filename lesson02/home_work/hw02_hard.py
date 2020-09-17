@@ -1,9 +1,21 @@
+__author__ = 'Ткаченко Кирилл Павлович'
+
+
 # Задание-1: уравнение прямой вида y = kx + b задано в виде строки.
 # Определить координату y точки с заданной координатой x.
 
 equation = 'y = -12x + 11111140.2121'
 x = 2.5
 # вычислите и выведите y
+
+print('*' * 70)
+print('Парсим уравнение и решаем его')
+op1, op2 = [
+    float(op.strip()[:-1]) * x if op.strip().endswith('x') else
+    float(op.strip()) for op in equation.split('=')[1].split('+')
+]
+print('Для x = {0} значение y = {1}'.format(x, op1 + op2))
+print('*' * 70)
 
 
 # Задание-2: Дата задана в виде строки формата 'dd.mm.yyyy'.
@@ -23,6 +35,28 @@ date = '01.11.1985'
 date = '01.22.1001'
 date = '1.12.1001'
 date = '-2.10.3001'
+
+
+import re
+
+print('*' * 70)
+print('Работаем с датами')
+input_date = input('Введите дату в формате dd.mm.yyyy: ')
+if not re.match(r'^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0-2])\.\d{4}$', input_date):
+    print('Некорректный формат даты.')
+else:
+    iday, imonth, iyear = [int(dp) for dp in input_date.split('.')]
+    MONTHS = dict([(mi, 31) if (mi % 2 and mi < 8) or (not mi % 2 and mi > 7) else
+                    (mi, 30) for mi in range(1, 13)])
+    if iyear % 4:
+        MONTHS[2] = 28
+    else:
+        MONTHS[2] = 29
+    if iday > MONTHS[imonth] or iyear == 0:
+        print('Введена некорректная дата.')
+    else:
+        print(iday, imonth, iyear)
+print('*' * 70)
 
 
 # Задание-3: "Перевёрнутая башня" (Задача олимпиадного уровня)
@@ -54,3 +88,17 @@ date = '-2.10.3001'
 #
 # Вход: 11
 # Выход: 5 3
+
+print('*' * 70)
+print('Катаемся на лифте по Вавилонской башне')
+print('-' * 70)
+destination = int(input('Введите номер комнаты прибытия: '))
+block = 1
+while destination > sum(i**2 for i in range(block + 1)):
+    block += 1
+block_last_stage = sum(range(block + 1))
+rooms_before_last = sum(i**2 for i in range(block + 1)) - destination
+stage = block_last_stage - rooms_before_last // block
+from_left = block - rooms_before_last % block
+print('Комната {0} находится на {1} этаже, {2}-ая слева'.format(destination, stage, from_left))
+print('*' * 70)
