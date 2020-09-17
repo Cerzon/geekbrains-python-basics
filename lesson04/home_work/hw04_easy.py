@@ -1,3 +1,6 @@
+__author__ = 'Ткаченко Кирилл Павлович'
+
+
 # Все задачи текущего блока решите с помощью генераторов списков!
 
 # Задание-1:
@@ -6,9 +9,30 @@
 # квадратами элементов исходного списка
 # [1, 2, 4, 0] --> [1, 4, 16, 0]
 
+lst = list(range(13))
+new_lst = [x**2 for x in lst]
+
+print('*' * 70)
+print('Начальный список и список из квадратов элементов начального')
+print(lst)
+print(new_lst)
+print('*' * 70)
+
 # Задание-2:
 # Даны два списка фруктов.
 # Получить список фруктов, присутствующих в обоих исходных списках.
+
+fruits1 = ['apple', 'pineapple', 'banana', 'plum', 'lemon']
+fruits2 = ['peach', 'plum', 'orange', 'lemon', 'apple', 'grapefruit']
+fruits3 = [x for x in fruits1 if x in fruits2]
+
+print('*' * 70)
+print('Два списка фруктов, третий список из элементов, присутсвующих в обоих')
+print(fruits1)
+print(fruits2)
+print(fruits3)
+print('*' * 70)
+
 
 # Задание-3:
 # Дан список, заполненный произвольными числами.
@@ -16,3 +40,14 @@
 # + Элемент кратен 3
 # + Элемент положительный
 # + Элемент не кратен 4
+
+from random import randint
+
+lst = [randint(-1000, 1000) for _ in range(21)]
+new_lst = [x for x in lst if not x % 3 and x > 0 and x % 4]
+
+print('*' * 70)
+print('Начальный список чисел и список с условиями отбора из начального')
+print(lst)
+print(new_lst)
+print('*' * 70)

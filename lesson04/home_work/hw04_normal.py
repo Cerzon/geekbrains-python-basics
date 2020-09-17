@@ -1,3 +1,6 @@
+__author__ = 'Ткаченко Кирилл Павлович'
+
+
 # Задание-1:
 # Вывести символы в нижнем регистре, которые находятся вокруг
 # 1 или более символов в верхнем регистре.
@@ -20,6 +23,35 @@ line = 'mtMmEZUOmcqWiryMQhhTxqKdSTKCYEJlEZCsGAMkgAYEOmHBSQsSUHKvSfbmxULaysmNO'\
        'XiUWgsKQrDOeZoNlZNRvHnLgCmysUeKnVJXPFIzvdDyleXylnKBfLCjLHntltignbQoiQ'\
        'zTYwZAiRwycdlHfyHNGmkNqSwXUrxGc'
 
+
+print('*' * 70)
+print('Ищем в строке группы символов в нижнем регистре')
+print('-' * 70)
+print('С помощью модуля регулярных выражений re')
+
+import re
+
+re_match = re.findall(r'[a-z]+', line)
+print(re_match, len(re_match))
+
+print('-' * 70)
+print('Без помощи модуля регулярных выражений re')
+
+str_group = ''
+match_list = []
+for symb in line:
+    if symb.islower():
+        str_group += symb
+    elif str_group:
+        match_list.append(str_group)
+        str_group = ''
+else:
+    if str_group:
+        match_list.append(str_group)
+
+print(match_list, len(match_list))
+
+print('*' * 70)
 
 # Задание-2:
 # Вывести символы в верхнем регистре, слева от которых находятся
@@ -45,9 +77,56 @@ line_2 = 'mtMmEZUOmcqWiryMQhhTxqKdSTKCYEJlEZCsGAMkgAYEOmHBSQsSUHKvSfbmxULaysm'\
        'JFaXiUWgsKQrDOeZoNlZNRvHnLgCmysUeKnVJXPFIzvdDyleXylnKBfLCjLHntltignbQ'\
        'oiQzTYwZAiRwycdlHfyHNGmkNqSwXUrxGC'
 
+
+print('*' * 70)
+print('Ищем в строке особым образом расположенные группы символов в верхнем регистре')
+print('-' * 70)
+print('С помощью модуля регулярных выражений re')
+
+re_match = re.findall(r'[a-z]{2}([A-Z]+)[A-Z]{2}', line_2)
+print(re_match, len(re_match))
+
+print('-' * 70)
+print('Без помощи модуля регулярных выражений re')
+
+match_list = []
+idx = 2
+ml = 0
+
+while idx < len(line_2) - 2:
+    if line_2[idx - 2:idx].islower() and line_2[idx:idx + 3].isupper():
+        ml = 1
+        while idx + ml + 2 < len(line_2) and line_2[idx + ml + 2].isupper():
+            ml += 1
+        match_list.append(line_2[idx:idx + ml])
+        idx += ml + 2
+    else:
+        idx += 1
+
+print(match_list, len(match_list))
+
+print('*' * 70)
+
+
 # Задание-3:
 # Напишите скрипт, заполняющий указанный файл (самостоятельно задайте имя файла)
 # произвольными целыми цифрами, в результате в файле должно быть
 # 2500-значное произвольное число.
 # Найдите и выведите самую длинную последовательность одинаковых цифр
 # в вышезаполненном файле.
+
+import os
+from random import randint
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+fname = os.path.join(SCRIPT_DIR, 'number.txt')
+
+with open(fname, 'w') as datafile:
+    for _ in range(2500):
+        datafile.write(str(randint(0, 9)))
+
+with open(fname, 'r') as datafile:
+    number = datafile.readline()
+
+re_match = re.findall(r'(0+|1+|2+|3+|4+|5+|6+|7+|8+|9+)', number)
+print(sorted(re_match, key=len, reverse=True)[0])

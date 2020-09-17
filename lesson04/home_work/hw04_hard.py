@@ -1,3 +1,6 @@
+__author__ = 'Ткаченко Кирилл Павлович'
+
+
 # Задание-1:
 # Матрицы в питоне реализуются в виде вложенных списков:
 # Пример. Дано:
@@ -12,6 +15,10 @@ matrix = [[1, 0, 8],
 #                  [8, 1, 2]]
 
 # Суть сложности hard: Решите задачу в одну строку
+
+# к сожалению решение этой задачи было разобрано на уроке и есть в примерах
+matrix_rotate = list(map(list, zip(*matrix)))
+
 
 # Задание-2:
 # Найдите наибольшее произведение пяти последовательных цифр в 1000-значном числе.
@@ -39,6 +46,35 @@ number = """
 05886116467109405077541002256983155200055935729725
 71636269561882670428252483600823257530420752963450"""
 
+# для начала избавимся от переносов строки, оставив только цифры
+number = ''.join(number.split('\n'))
+
+# встроенной функции произведения элементов списка нет, выкручиваемся
+from functools import reduce
+from operator import mul
+
+max_idx = 0
+max_mul = 0
+
+# вариант кода в комментарии делает почти то же самое, но страшнее и
+# выполняется в среднем на 100 нс дольше (проверял на 10к повторов);
+# не может же быть это только из-за "страшности"?
+
+# for idx, five_mul in ((i, reduce(mul, map(int, number[i:i + 5]), 1),)
+#                         for i in range(len(number) - 5)
+#                         if not '0' in number[i:i + 5]):
+
+for idx in range(len(number) - 5):
+    if not '0' in number[idx:idx + 5]:
+        five_mul = reduce(mul, map(int, number[idx:idx + 5]), 1)
+        if five_mul > max_mul:
+            max_mul = five_mul
+            max_idx = idx
+
+print('max_mul = ', max_mul)
+print('start index = ', max_idx)
+print('sequence = ', number[max_idx:max_idx + 5])
+
 
 # Задание-3 (Ферзи):
 # Известно, что на доске 8×8 можно расставить 8 ферзей так, чтобы они не били
@@ -47,3 +83,75 @@ number = """
 # Программа получает на вход восемь пар чисел,
 # каждое число от 1 до 8 — координаты 8 ферзей.
 # Если ферзи не бьют друг друга, выведите слово NO, иначе выведите YES.
+
+# расстановка для проверки - 8 пар чисел
+
+queen0 = (0, 1,)
+queen1 = (1, 3,)
+queen2 = (2, 5,)
+queen3 = (3, 7,)
+queen4 = (4, 2,)
+queen5 = (5, 0,)
+queen6 = (6, 6,)
+queen7 = (7, 4,)
+
+check = True
+
+# проверка прямых (небьющие друг друга ладьи)
+for line in zip(queen0, queen1, queen2, queen3, queen4, queen5, queen6, queen7):
+    for num in line:
+        if line.count(num) > 1:
+            check = False
+            break
+    if not check:
+        break
+
+# если проверка прямых пройдена, проверяем диагонали
+if check:
+    qs = dict([queen0, queen1, queen2, queen3, queen4, queen5, queen6, queen7])
+    for row in range(1, 8):
+        if True in (abs(qs[row] - qs[i]) == row - i for i in range(row)):
+            check = False
+            break
+
+print('NO' if check else 'YES')
+
+
+# поиск решений задачи с ферзями
+
+# solutions = []
+# qs = [0 for _ in range(8)]
+# for qs[0] in range(8):
+#     for qs[1] in range(8):
+#         if qs[1] == qs[0] or abs(qs[1] - qs[0]) == 1:
+#             continue
+#         for qs[2] in range(8):
+#             if (qs[2] in qs[:2] or
+#                 True in (abs(qs[2] - qs[i]) == 2 - i for i in range(2))):
+#                 continue
+#             for qs[3] in range(8):
+#                 if (qs[3] in qs[:3] or
+#                     True in (abs(qs[3] - qs[i]) == 3 - i for i in range(3))):
+#                     continue
+#                 for qs[4] in range(8):
+#                     if (qs[4] in qs[:4] or
+#                         True in (abs(qs[4] - qs[i]) == 4 - i for i in range(4))):
+#                         continue
+#                     for qs[5] in range(8):
+#                         if (qs[5] in qs[:5] or
+#                             True in (abs(qs[5] - qs[i]) == 5 - i for i in range(5))):
+#                             continue
+#                         for qs[6] in range(8):
+#                             if (qs[6] in qs[:6] or
+#                                 True in (abs(qs[6] - qs[i]) == 6 - i for i in range(6))):
+#                                 continue
+#                             for qs[7] in range(8):
+#                                 if (qs[7] in qs[:7] or
+#                                     True in (abs(qs[7] - qs[i]) == 7 - i for i in range(7))):
+#                                     continue
+
+#                                 solutions.append(qs[:])
+
+# if len(solutions) > 0:
+#     with open('queenset.txt', 'w') as queenset:
+#          queenset.write(('{}\n' * len(solutions)).format(*solutions))
