@@ -58,7 +58,7 @@
 
 """
 
-from random import randint
+from random import randint, sample
 
 
 BARRELS_AMOUNT = 90
@@ -110,10 +110,7 @@ class BarrelsBag:
     Мешок с заказным количеством бочонков
     """
     def __init__(self, amount):
-        self.barrels = sorted(
-            list(range(1, amount + 1)),
-            key=lambda _: randint(0, amount * 2)
-        )
+        self.barrels = sample(range(1, amount + 1), k=amount)
         self.remain = amount
 
     def __iter__(self):
