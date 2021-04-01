@@ -72,16 +72,15 @@ class LotoCard:
     Карточка лото с числами
     """
     def __init__(self, player):
-        lst = []
-        for barrel, remain in BarrelsBag(BARRELS_AMOUNT):
-            lst.append(barrel)
-            if BARRELS_AMOUNT - remain == NUMS_PER_CARD:
-                break
+        barrel = iter(BarrelsBag(BARRELS_AMOUNT))
+        rand_numbers = [next(barrel)[0] for _ in range(NUMS_PER_CARD)]
         self.card = []
-        for i in range(ROWS_PER_CARD):
-            row = sorted(lst[i::ROWS_PER_CARD])
-            for _ in range(CELLS_PER_ROW - len(row)):
-                row.insert(randint(0, len(row)), ' ')
+        for row_idx in range(ROWS_PER_CARD):
+            row = rand_numbers[row_idx::ROWS_PER_CARD]
+            row = sorted(
+                row + [''] * (CELLS_PER_ROW - len(row)),
+                key=lambda el: el if el else randint(1, BARRELS_AMOUNT)
+            )
             self.card += row
         self.template = None
         self.player = player
@@ -111,17 +110,20 @@ class BarrelsBag:
     Мешок с заказным количеством бочонков
     """
     def __init__(self, amount):
-        self.barrels = list(range(1, amount + 1))
+        self.barrels = sorted(
+            list(range(1, amount + 1)),
+            key=lambda _: randint(0, amount * 2)
+        )
+        self.remain = amount
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        remain = len(self.barrels)
-        if remain == 0:
+        if self.remain == 0:
             raise StopIteration
-        remain -= 1
-        return self.barrels.pop(randint(0, remain)), remain
+        self.remain -= 1
+        return self.barrels.pop(), self.remain
 
 
 class LotoGame:
